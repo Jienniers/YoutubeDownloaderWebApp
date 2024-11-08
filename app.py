@@ -201,7 +201,7 @@ def home():
                 print(stored_url)
                 youtube = YouTube(url_text, use_po_token=True)
                 thumbnail = youtube.thumbnail_url
-                title = f"Title: {youtube.title}"
+                title = f"{youtube.title}"
                 visibility = "visible"
                 status = "Status: "
 
