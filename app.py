@@ -138,6 +138,7 @@ def downloadVideo(url):
             final_clip = video_clip.set_audio(audio_clip)
 
             final_clip.write_videofile(OutputPath, codec="libx264", audio_codec="aac")
+            
 
             print("Merging complete!")
 
@@ -145,7 +146,7 @@ def downloadVideo(url):
             print(f"AudioPath: {AudioPath}")
             print(f"SoundPath: {OutputPath}")
 
-            return "Final " + videoStreams.default_filename
+            return "Videos\\" + "Final " + videoStreams.default_filename
         else:
             print("No streams available for the video.")
             return None
@@ -163,7 +164,15 @@ def downloadAudio(url):
         if audioStreams:
             audioStreams.download('Audios/')
 
-            return audioStreams.default_filename
+            audio = AudioFileClip(f"Audios/{audioStreams.default_filename}")
+
+            # Ensure the file extension matches the codec
+            output_filename = f"Audios/Final-{audioStreams.default_filename.replace('.m4a', '.mp3')}"
+
+            # Write the audio to an MP3 file
+            audio.write_audiofile(output_filename, codec='mp3')
+
+            return output_filename
 
     except Exception as e:
         print(f"Error: {e}")
@@ -199,9 +208,7 @@ def home():
         elif "download_button_mine" in request.form:
             print(stored_url)
             status = "Status: Downloading...!"
-            videoFilename = downloadVideo(stored_url)
-
-            videoPath = "Videos\\" + videoFilename
+            videoPath = downloadVideo(stored_url)
 
             print(videoPath)
 
@@ -221,9 +228,7 @@ def home():
             
         elif "download_audio_button_mine" in request.form:
 
-            audioFileName = downloadAudio(stored_url)
-
-            audioPath = "Audios\\" + audioFileName
+            audioPath = downloadAudio(stored_url)
 
             if os.path.exists(audioPath):
                 return send_file(
