@@ -50,11 +50,11 @@ except ImportError:
 
 app = Flask(__name__)
 
-def downloadVideo(url):
+def downloadVideo(url, selectedResolution):
     try:
         yt = YouTube(url, use_po_token=True, on_progress_callback = on_progress)
 
-        videoStreams = yt.streams.filter(res="1080p").first()
+        videoStreams = yt.streams.filter(res=selectedResolution).first()
         audioStreams = yt.streams.filter(only_audio=True).first()
 
         if videoStreams and audioStreams:
@@ -183,6 +183,15 @@ def deleteFileAfterDelay(delay_seconds=5):
     shutil.rmtree("Videos")
 
 
+def get_video_resolutions(video_url):
+    yt = YouTube(video_url)
+    stream_list = yt.streams.filter(file_extension='mp4')
+    
+    resolutions = [stream.resolution for stream in stream_list if stream.resolution]
+    # Remove duplicates, sort resolutions, and order them by quality
+    resolutions = list(sorted(set(resolutions), key=lambda x: int(x[:-1]), reverse=True))
+    return resolutions
+
 stored_url = ""
 @app.route('/', methods=['GET', 'POST'])
 def home():
@@ -190,6 +199,7 @@ def home():
     thumbnail = ""
     title = ""
     visibility = "hidden"
+    resolutions = ""
     if request.method == 'POST':
         url_text = request.form['search_url']
 
@@ -202,9 +212,14 @@ def home():
                 title = f"{youtube.title}"
                 visibility = "visible"
 
+                resolutions = get_video_resolutions(stored_url)
+
+                print("Available resolutions:", resolutions)
+
         elif "download_button_mine" in request.form:
             print(stored_url)
-            videoPath = downloadVideo(stored_url)
+            selectedResolution = request.form['resolutions']
+            videoPath = downloadVideo(stored_url, selectedResolution)
 
             print(videoPath)
 
@@ -241,7 +256,8 @@ def home():
         thumbnail=thumbnail, 
         title=title, 
         un_visible=visibility,
-        res_visibility=visibility)
+        res_visibility=visibility,
+        resolutions=resolutions)
 
 
 if __name__ == '__main__':
