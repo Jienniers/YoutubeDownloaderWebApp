@@ -190,24 +190,20 @@ def home():
     thumbnail = ""
     title = ""
     visibility = "hidden"
-    status = "Status: "
     if request.method == 'POST':
         url_text = request.form['search_url']
 
         if 'search' in request.form:
             if 'search_url' in request.form and 'https' in url_text.lower():
-                status = "Status: Processing...!"
                 stored_url = url_text
                 print(stored_url)
                 youtube = YouTube(url_text, use_po_token=True)
                 thumbnail = youtube.thumbnail_url
                 title = f"{youtube.title}"
                 visibility = "visible"
-                status = "Status: "
 
         elif "download_button_mine" in request.form:
             print(stored_url)
-            status = "Status: Downloading...!"
             videoPath = downloadVideo(stored_url)
 
             print(videoPath)
