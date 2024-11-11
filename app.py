@@ -35,15 +35,30 @@ except ImportError:
         exit()
 
 
+# try:
+#     from moviepy.editor import VideoFileClip, AudioFileClip
+# except ImportError:
+#     if sys.platform.startswith("win"):
+#         os.system("python -m pip install moviepy")
+#     else:
+#         os.system("python3 -m pip install moviepy")
+#     try:
+#         from moviepy.editor import VideoFileClip, AudioFileClip
+#     except ImportError:
+#         print("You need python3 installed! Main")
+#         exit()
+
+
+
 try:
-    from moviepy.editor import VideoFileClip, AudioFileClip
+    import ffmpeg
 except ImportError:
     if sys.platform.startswith("win"):
-        os.system("python -m pip install moviepy")
+        os.system("python -m pip install ffmpeg-python")
     else:
-        os.system("python3 -m pip install moviepy")
+        os.system("python3 -m pip install ffmpeg-python")
     try:
-        from moviepy.editor import VideoFileClip, AudioFileClip
+        import ffmpeg
     except ImportError:
         print("You need python3 installed! Main")
         exit()
@@ -132,12 +147,18 @@ def downloadVideo(url, selectedResolution):
             OutputPath = os.path.join('Videos', "Final " + VideoFileName)
 
 
-            video_clip = VideoFileClip(VideoPath)
-            audio_clip = AudioFileClip(AudioPath)
+            # video_clip = VideoFileClip(VideoPath)
+            # audio_clip = AudioFileClip(AudioPath)
 
-            final_clip = video_clip.set_audio(audio_clip)
+            # final_clip = video_clip.set_audio(audio_clip)
 
-            final_clip.write_videofile(OutputPath, codec="libx264", audio_codec="aac")
+            # final_clip.write_videofile(OutputPath, codec="libx264", audio_codec="aac")
+
+            video_clip = ffmpeg.input(VideoPath)
+
+            audio_clip = ffmpeg.input(AudioPath)
+
+            ffmpeg.concat(video_clip, audio_clip, v=1, a=1).output(OutputPath).run()
             
 
             print("Merging complete!")
@@ -164,13 +185,16 @@ def downloadAudio(url):
         if audioStreams:
             audioStreams.download('Audios/')
 
-            audio = AudioFileClip(f"Audios/{audioStreams.default_filename}")
+            # audio = AudioFileClip(f"Audios/{audioStreams.default_filename}")
 
-            # Ensure the file extension matches the codec
+            # # Ensure the file extension matches the codec
             output_filename = f"Audios/Final-{audioStreams.default_filename.replace('.m4a', '.mp3')}"
 
-            # Write the audio to an MP3 file
-            audio.write_audiofile(output_filename, codec='mp3')
+            # # Write the audio to an MP3 file
+            # audio.write_audiofile(output_filename, codec='mp3')
+            input_file = f"Audios/{audioStreams.default_filename}"
+
+            ffmpeg.input(input_file).output(output_filename, acodec='libmp3lame', ar='44100', ac=2, ab='192k').run(overwrite_output=True)
 
             return output_filename
 
@@ -178,9 +202,14 @@ def downloadAudio(url):
         print(f"Error: {e}")
         return None
 
-def deleteFileAfterDelay(delay_seconds=5):
+def deleteVideoFileAfterDelay(delay_seconds=5):
     time.sleep(delay_seconds)
     shutil.rmtree("Videos")
+
+
+def deleteAudioFileAfterDelay(delay_seconds=5):
+    time.sleep(delay_seconds)
+    shutil.rmtree("Audios")
 
 
 def get_video_resolutions(video_url):
@@ -226,7 +255,7 @@ def home():
             if videoPath:
                 @after_this_request
                 def remove_file(response):
-                    threading.Thread(target=deleteFileAfterDelay).start()
+                    threading.Thread(target=deleteVideoFileAfterDelay).start()
                     return response
 
                 return send_file(
@@ -242,6 +271,12 @@ def home():
             audioPath = downloadAudio(stored_url)
 
             if os.path.exists(audioPath):
+
+                @after_this_request
+                def remove_file(response):
+                    threading.Thread(target=deleteAudioFileAfterDelay).start()
+                    return response
+            
                 return send_file(
                     audioPath,
                     as_attachment=True,
