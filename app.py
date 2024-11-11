@@ -4,6 +4,7 @@ import time
 import shutil
 import sys
 import subprocess
+import re
 
 def install(package):
     subprocess.check_call([sys.executable, "-m", "pip", "install", package])
@@ -34,22 +35,6 @@ except ImportError:
         print("You need python3 installed! Main")
         exit()
 
-
-# try:
-#     from moviepy.editor import VideoFileClip, AudioFileClip
-# except ImportError:
-#     if sys.platform.startswith("win"):
-#         os.system("python -m pip install moviepy")
-#     else:
-#         os.system("python3 -m pip install moviepy")
-#     try:
-#         from moviepy.editor import VideoFileClip, AudioFileClip
-#     except ImportError:
-#         print("You need python3 installed! Main")
-#         exit()
-
-
-
 try:
     import ffmpeg
 except ImportError:
@@ -64,6 +49,11 @@ except ImportError:
         exit()
 
 app = Flask(__name__)
+
+def sanitize_filename(filename):
+    invalid_chars = r'[|:*?"<>/\\]'
+    
+    return re.sub(invalid_chars, '', filename)
 
 def downloadVideo(url, selectedResolution):
     try:
@@ -86,73 +76,12 @@ def downloadVideo(url, selectedResolution):
             VideoFileName = videoStreams.default_filename
             AudioFileName = audioStreams.default_filename
 
-            if '|' in VideoFileName: 
-                VideoFileName = VideoFileName.replace('|', '')
-
-            if ':' in VideoFileName:
-                VideoFileName = VideoFileName.replace(':', '')
-
-            if '*' in VideoFileName:
-                VideoFileName = VideoPath.replace('*', '')
-
-            if '?' in VideoFileName:
-                VideoFileName = VideoFileName.replace('?', '')
-
-            if '"' in VideoFileName:
-                VideoFileName = VideoFileName.replace('"', '')
-
-            if '<' in VideoFileName:
-                VideoFileName = VideoFileName.replace('<', '')
-
-            if '>' in VideoFileName:
-                VideoFileName = VideoFileName.replace('>', '')
-
-            if '/' in VideoFileName:
-                VideoFileName = VideoFileName.replace('/', '')
-
-            if "\\" in VideoFileName:
-                VideoFileName = VideoFileName.replace("\\", "")
-
-                #Audio Path
-
-            if '|' in AudioFileName: 
-                AudioFileName = AudioFileName.replace('|', '')
-
-            if ':' in AudioFileName:
-                AudioFileName = AudioFileName.replace(':', '')
-
-            if '*' in AudioFileName:
-                AudioFileName = AudioFileName.replace('*', '')
-
-            if '?' in AudioFileName:
-                AudioFileName = AudioFileName.replace('?', '')
-
-            if '"' in AudioFileName:
-                AudioFileName = AudioFileName.replace('"', '')
-
-            if '<' in AudioFileName:
-                AudioFileName = AudioFileName.replace('<', '')
-
-            if '>' in AudioFileName:
-                AudioFileName = AudioFileName.replace('>', '')
-
-            if '/' in AudioFileName:
-                AudioFileName = AudioFileName.replace('/', '')
-
-            if "\\" in AudioFileName:
-                AudioFileName = AudioFileName.replace("\\", "")
+            VideoFileName = sanitize_filename(VideoFileName)
+            AudioFileName = sanitize_filename(AudioFileName)
 
             VideoPath = os.path.join('Videos', VideoFileName)
             AudioPath = os.path.join('Videos', AudioFileName)
             OutputPath = os.path.join('Videos', "Final " + VideoFileName)
-
-
-            # video_clip = VideoFileClip(VideoPath)
-            # audio_clip = AudioFileClip(AudioPath)
-
-            # final_clip = video_clip.set_audio(audio_clip)
-
-            # final_clip.write_videofile(OutputPath, codec="libx264", audio_codec="aac")
 
             video_clip = ffmpeg.input(VideoPath)
 
