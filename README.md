@@ -1,19 +1,16 @@
 
 # Youtube Video Downloader Web App
 
-A Web App for downloading youtube videos at 1080p Quality
-
-## Requirement
-Make sure that the video you are trying to download has the minimum resolution of 1080p otherwise, It will give error.
+A Web App for downloading youtube videos at your favourite resolution.
 
 ## Installation
 
-Makesure to have python installed to run this program you can install it from [here](https://www.python.org/downloads/).
+Makesure to have python installed to run this program you can install it from [here](https://www.python.org/downloads/). You also need to have ffmeg installed on your pc, you can download it from [here](https://ffmpeg.org/download.html).
 
 The Program installs all the modules it self though if it doesn't install you can manually install them by using this command: 
 
 ```bash
-  pip install flask pytubefix moviepy
+  pip install flask pytubefix ffmpeg-python
 ```
 After that you can open command line interface in the directly where this program and its files are located and run this command:
 ```bash
