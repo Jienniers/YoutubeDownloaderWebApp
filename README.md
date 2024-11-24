@@ -37,7 +37,7 @@ After that you can open command line interface in the directly where this progra
 ![App Screenshot](https://github.com/Jienniers/YoutubeDownloaderWebApp/blob/main/screenshots/Screenshot2.png)
 
 
-## Feedback
+## Support
 
-If you have any feedback, Kindly post them in [@Issues](https://github.com/Jienniers/YoutubeDownloaderWebApp/issues)
+If you encounter any issues or have suggestions for improvement, please submit an issue on the GitHub repository.
 
