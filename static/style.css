@@ -108,30 +108,6 @@ input[type="text"],
   height: 8%;
 }
 
-#resolutions{
-  padding: 10px;
-  font-size: 20px;
-  border-radius: 10px;
-  background: linear-gradient(to right, #00796b, #0066cc);
-  color: white;
-  float: left;
-  position: absolute;
-  left: 55%;
-  z-index:999;
-  top: 69%;
-}
-
-option {
-  padding: 10px;
-  background-color: #f9f9f9;
-  color: white;
-}
-
-/* Hover effect for the dropdown */
-select:hover {
-  border-color: #3e8e41;
-}
-
 .bubble-box button {
   border: none;
   border-radius: 10px;
@@ -174,4 +150,29 @@ select:hover {
 .bubble-box .download_button{
   margin-left: 10px;
   float: right;
+}
+
+.bubble-box select{
+  padding: 10px;
+  font-size: 20px;
+  border-radius: 10px;
+  background: linear-gradient(to right, #00796b, #0066cc);
+  color: white;
+}
+
+.bubble-box select option {
+  padding: 10px;
+  background-color: #f9f9f9;
+  color: white;
+}
+
+select:hover {
+  border-color: #3e8e41;
+}
+
+#resolutions{
+  float: left;
+  position: absolute;
+  left: 55%;
+  top: 60%;
 }
