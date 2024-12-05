@@ -29,9 +29,13 @@
         <h1 class="title_text">{{ title }}</h1>
 
         <!-- <img src="{{ thumbnail }}" alt="Displayed Image" class="_thumbnail" style="visibility: {{un_visible}};"> -->
-        <img src="{{ thumbnail }}" class="img-fluid" alt="Displayed Image" style="border-radius: 20px; width: 50%; height: auto; visibility: {{un_visible}};" class="_thumbnail">
-        <button type="submit" name="download_audio_button_mine" class="download_button audio_download" style="visibility: {{un_visible}};">Download Audio</button>
-        <button type="submit" name="download_button_mine" class="download_button" style="visibility: {{un_visible}};">Download</button>
+
+        <div style="display: inline-block; margin-top: 10px;">
+            <img src="{{ thumbnail }}" class="img-fluid" alt="Displayed Image" style="border-radius: 20px; width: 50%; height: auto; float: left; visibility: {{un_visible}};" class="_thumbnail">
+            <button type="submit" name="download_audio_button_mine" class="audio_download_btn" style="visibility: {{un_visible}};">Download Audio</button>
+            <button type="submit" name="download_button_mine" class="download_button" style="visibility: {{un_visible}};">Download</button>
+        </div>
+
         <select name="resolutions" id="resolutions" style="visibility: {{un_visible}};" > {% for res in resolutions %} <option value="{{ res }}" style="background-color: black;">{{ res }}</option> {% endfor %} </select>
         
     <script>
