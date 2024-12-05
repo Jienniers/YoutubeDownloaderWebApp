@@ -1,32 +1,13 @@
 @import url('https://fonts.googleapis.com/css2?family=Roboto&display=swap');
 *{
-    box-sizing: 0;
-    padding: 0;
-    margin: 0;   
+  box-sizing: 0;
+  padding: 0;
+  margin: 0;   
 }
 body {
   margin: 0;
   padding: 0;
   background-color: #15131d;
-}
-._header {
-  position: fixed;
-  width: 70%;
-  height: 100px;
-  /* background-image: linear-gradient(to right, #2c3e50, #3498db); */
-  display: flex;
-  background-color: #312e3f;
-  margin-top: 50px;
-  flex-direction: row; 
-  align-items: center; justify-content: center;
-}
-
-._header img {
-  display: block;
-  width: 150px;
-  height: auto;
-  margin-top: 10px;
-  box-sizing: border-box;
 }
 
 .title_div ._title {
@@ -34,7 +15,6 @@ body {
   color: white;
   text-align: center;
   font-size: 50px;
-
 }
 
 .title_div {
@@ -63,7 +43,6 @@ body {
   z-index: 0; /* Ensures that the bubble box is behind the title */
 }
 
-
 .bubble-box h1 {
   font-family: 'Roboto', sans-serif;
   color: white;
@@ -83,7 +62,6 @@ body {
   border-color: #3498db transparent transparent transparent;
 }
 
-
 .bubble-box input {
   border: none;
   border-radius: 10px;
@@ -94,12 +72,6 @@ body {
   margin: 0 auto; /* Set margin to 0 top/bottom and auto left/right to center */
   width: 80%; /* Set width to 100% to fill the container */
 }
-
-#dropdown option{
-  font-size: 20px;
-  color: black;
-}
-  
 
 input[type="text"],
 .bubble-box input{
@@ -120,7 +92,6 @@ input[type="text"],
   color: #fff;
   transition: background 0.5s ease, color 0.5s ease, transform 0.5s ease;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  display: inline-block;
 }
 
 .bubble-box button:hover {

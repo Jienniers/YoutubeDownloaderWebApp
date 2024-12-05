@@ -6,13 +6,8 @@
     <title>YTDownloader</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
     <link rel="stylesheet" href="/static/style.css">
-    <!-- <link rel="icon" src="{{ url_for('static', filename='images/small logo.png') }}"> -->
-    <!-- <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous"> -->
 </head>
 <body>
-        <!-- <div class="_header">
-            <img src="{{ url_for('static', filename='images/small logo.png') }}", alt="">
-        </div> -->
         <div class="title_div">
             <h1 class="_title">
                 Download Your Favourite Youtube Video
@@ -28,9 +23,7 @@
 
         <h1 class="title_text">{{ title }}</h1>
 
-        <!-- <img src="{{ thumbnail }}" alt="Displayed Image" class="_thumbnail" style="visibility: {{un_visible}};"> -->
-
-        <div style="display: inline-block; margin-top: 10px;">
+        <div style="display: inline-block; margin-top: 10px;" class="inline_items_div">
             <img src="{{ thumbnail }}" class="img-fluid" alt="Displayed Image" style="border-radius: 20px; width: 50%; height: auto; float: left; visibility: {{un_visible}};" class="_thumbnail">
             <button type="submit" name="download_audio_button_mine" class="audio_download_btn" style="visibility: {{un_visible}};">Download Audio</button>
             <button type="submit" name="download_button_mine" class="download_button" style="visibility: {{un_visible}};">Download</button>
