@@ -77,7 +77,7 @@ input[type="text"],
 .bubble-box input{
   outline: none;
   border: 1px solid #ccc; /* Add your custom border style if needed */
-  height: 8%;
+  height: 6%;
 }
 
 .bubble-box button {
@@ -148,19 +148,21 @@ select:hover {
   top: 60%;
 }
 
+.bubble-box ._thumbnail {
+  border-radius: 20px; 
+  width: 50%; 
+  height: auto; 
+  float: left;
+}
+
 @media (max-width: 768px) {
   .bubble-box {
     width: 90%;
+    height: 700px;
   }
 
-  ._thumbnail {
-    width: 100%;   /* Increase the width to 90% of the screen */
-    height: auto;  /* Maintain aspect ratio */
-    margin-bottom: 20px;  /* Adds space below the image */
-    display: block;  /* Ensure it behaves like a block element */
-    margin-left: auto;  /* Horizontal centering */
-    margin-right: auto; /* Horizontal centering */
-    float: none;
+  .bubble-box ._thumbnail {
+    width: 100%;
 }
 
   .inline_items_div {
@@ -190,8 +192,8 @@ select:hover {
       font-size: 0.9rem;
   }
 
-  ._thumbnail {
-    width: 90%;   /* Increase the width to 90% of the screen */
+  .bubble-box ._thumbnail {
+    width: 100%;   /* Increase the width to 90% of the screen */
     max-width: 600px;  /* Limit the max width to avoid being too large */
     height: auto;  /* Maintain aspect ratio */
     margin-bottom: 20px;  /* Adds space below the image */
