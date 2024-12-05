@@ -147,3 +147,63 @@ select:hover {
   left: 55%;
   top: 60%;
 }
+
+@media (max-width: 768px) {
+  .bubble-box {
+    width: 90%;
+  }
+
+  ._thumbnail {
+    width: 100%;   /* Increase the width to 90% of the screen */
+    height: auto;  /* Maintain aspect ratio */
+    margin-bottom: 20px;  /* Adds space below the image */
+    display: block;  /* Ensure it behaves like a block element */
+    margin-left: auto;  /* Horizontal centering */
+    margin-right: auto; /* Horizontal centering */
+    float: none;
+}
+
+  .inline_items_div {
+    align-items: stretch;
+  }
+
+  .search_btn, .audio_download_btn, .download_button, select {
+      width: 100%;
+      margin-top: 30px;
+  }
+
+  #resolutions {
+    position: absolute;
+    left: 50%; /* Move it to the center */
+    top: 80%;  /* Keep it at 60% from the top */
+    transform: translateX(-50%); /* Center the element */
+    max-width: 350px;
+}
+}
+
+@media (max-width: 480px) {
+  .bubble-box-title, .title_text {
+      font-size: 1.2rem;
+  }
+
+  .input-field {
+      font-size: 0.9rem;
+  }
+
+  ._thumbnail {
+    width: 90%;   /* Increase the width to 90% of the screen */
+    max-width: 600px;  /* Limit the max width to avoid being too large */
+    height: auto;  /* Maintain aspect ratio */
+    margin-bottom: 20px;  /* Adds space below the image */
+}
+
+
+  .search_btn, .audio_download_btn, .download_button {
+      font-size: 0.9rem;
+      margin-top: 30px;
+  }
+
+  select {
+      font-size: 0.9rem;
+  }
+}
