@@ -95,12 +95,6 @@ body {
   width: 80%; /* Set width to 100% to fill the container */
 }
 
-._thumbnail{
-  border-radius: 20px;
-  width: 50%;
-  height: auto;
-}
-
 #dropdown option{
   font-size: 20px;
   color: black;
@@ -150,6 +144,7 @@ select:hover {
   color: #fff;
   transition: background 0.5s ease, color 0.5s ease, transform 0.5s ease;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  display: inline-block;
 }
 
 .bubble-box button:hover {
@@ -171,3 +166,12 @@ select:hover {
   align-self: center;
 }
 
+.bubble-box .audio_download_btn{
+  margin-left: 10px;
+  float: right;
+}
+
+.bubble-box .download_button{
+  margin-left: 10px;
+  float: right;
+}
