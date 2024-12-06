@@ -23,20 +23,19 @@ body {
   margin-bottom: 50px;
 }
 
-/* CSS for the bubble box */
 .bubble-box {
   position: relative; /* Changed from absolute to relative */
   top: 0;
   left: 0;
   margin: 0 auto;
-  width: 700px; /* Set the desired width */
+  width: 700px;
   height: 530px;
-  padding: 20px; /* Adjust padding as needed */
+  padding: 20px;
   background-color: #312e3f;
   border-radius: 20px;
   box-shadow: 0 0 20px rgba(0, 0, 0, 0.2); /* Add a subtle box shadow */
-  color: #fff; /* Set the text color */
-  text-align: left; /* Align text to the left */
+  color: #fff;
+  text-align: left;
   display: flex;
   flex-direction: column;
   align-items: flex-start; /* Align items to the start (top) */
@@ -70,7 +69,7 @@ body {
   font-size: 20px;
   font-family: 'Roboto', sans-serif;
   margin: 0 auto; /* Set margin to 0 top/bottom and auto left/right to center */
-  width: 80%; /* Set width to 100% to fill the container */
+  width: 80%;
 }
 
 input[type="text"],
@@ -175,7 +174,7 @@ select:hover {
 
   #resolutions {
     left: 50%; /* Move it to the center */
-    top: 90%;  /* Keep it at 60% from the top */
+    top: 90%;
     transform: translateX(-50%); /* Center the element */
     width: 100%;
     max-width: 350px;
@@ -192,10 +191,10 @@ select:hover {
   }
 
   .bubble-box ._thumbnail {
-    width: 100%;   /* Increase the width to 90% of the screen */
-    max-width: 600px;  /* Limit the max width to avoid being too large */
-    height: auto;  /* Maintain aspect ratio */
-    margin-bottom: 20px;  /* Adds space below the image */
+    width: 100%;
+    max-width: 600px;
+    height: auto;
+    margin-bottom: 20px;
 }
 
   .search_btn, .audio_download_btn, .download_button {
