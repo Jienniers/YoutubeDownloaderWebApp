@@ -180,7 +180,7 @@ select:hover {
     top: 80%;  /* Keep it at 60% from the top */
     transform: translateX(-50%); /* Center the element */
     max-width: 350px;
-}
+  }
 }
 
 @media (max-width: 480px) {

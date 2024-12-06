@@ -29,12 +29,5 @@
         <button type="submit" name="download_button_mine" class="download_button" style="visibility: {{un_visible}};">Download</button>
         <select name="resolutions" id="resolutions" style="visibility: {{un_visible}};" > {% for res in resolutions %} <option value="{{ res }}" style="background-color: black;">{{ res }}</option> {% endfor %} </select>
     </div>
-    
-    <script>
-        function submitForm() {
-            var inputValue = document.getElementById('url_link').value;
-            document.getElementById('url_link').value = '';
-        }
-        </script>
 </body>
 </html>
