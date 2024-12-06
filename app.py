@@ -116,7 +116,7 @@ def downloadVideo(url, selectedResolution):
             print(f"AudioPath: {AudioPath}")
             print(f"SoundPath: {OutputPath}")
 
-            return "Videos\\" + "Final " + videoStreams.default_filename
+            return OutputPath
         else:
             print("No streams available for the video.")
             return None
