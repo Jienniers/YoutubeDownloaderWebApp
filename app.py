@@ -50,10 +50,33 @@ except ImportError:
 
 app = Flask(__name__)
 
+# List of invalid characters for Windows filenames
+INVALID_CHARACTERS = r'[<>:"/\\|?*]'
+
+# Reserved words that cannot be used as filenames in Windows
+RESERVED_WORDS = {'CON', 'PRN', 'AUX', 'NUL', 'COM1', 'COM2', 'COM3', 'COM4', 'COM5', 'COM6', 'COM7', 'COM8', 'COM9', 'LPT1', 'LPT2', 'LPT3', 'LPT4', 'LPT5', 'LPT6', 'LPT7', 'LPT8', 'LPT9'}
+
 def sanitize_filename(filename):
-    invalid_chars = r'[|:*?"<>/\\]'
+    # Remove invalid characters
+    filename = re.sub(INVALID_CHARACTERS, '_', filename)
     
-    return re.sub(invalid_chars, '', filename)
+    # Remove any non-ASCII characters 
+    filename = ''.join(c for c in filename if ord(c) < 128)
+    
+    # Replace spaces with underscores or something else if necessary
+    filename = filename.replace(' ', '_')
+
+    # Remove leading/trailing spaces
+    filename = filename.strip()
+    
+    # Handle reserved filenames (e.g., "CON")
+    base, ext = filename.rsplit('.', 1) if '.' in filename else (filename, '')
+    if base.upper() in RESERVED_WORDS:
+        base = base + '_'
+    
+    # Reassemble the filename with the extension
+    sanitized_filename = f"{base}.{ext}" if ext else base
+    return sanitized_filename
 
 def downloadVideo(url, selectedResolution):
     try:
@@ -114,13 +137,8 @@ def downloadAudio(url):
         if audioStreams:
             audioStreams.download('Audios/')
 
-            # audio = AudioFileClip(f"Audios/{audioStreams.default_filename}")
-
-            # # Ensure the file extension matches the codec
             output_filename = f"Audios/Final-{audioStreams.default_filename.replace('.m4a', '.mp3')}"
 
-            # # Write the audio to an MP3 file
-            # audio.write_audiofile(output_filename, codec='mp3')
             input_file = f"Audios/{audioStreams.default_filename}"
 
             ffmpeg.input(input_file).output(output_filename, acodec='libmp3lame', ar='44100', ac=2, ab='192k').run(overwrite_output=True)
