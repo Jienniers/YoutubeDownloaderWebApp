@@ -230,7 +230,7 @@ def home():
                 )
 
             else:
-                return "Audio File download failed, Please try any other video", 404
+                return "Audio File download failed, Please try any other audio", 404
             
     return render_template(
         'index.html', 
