@@ -215,8 +215,17 @@ def home():
         elif "download_audio_button_mine" in request.form:
 
             audioPath = downloadAudio(stored_url)
+            
+            newAudioPath = audioPath.replace("Final-", "")
 
             if os.path.exists(audioPath):
+                os.rename(audioPath, newAudioPath)
+                print(f"File renamed to: {newAudioPath}")
+                
+            else:
+                print(f"Error: The file at {audioPath} does not exist.")
+
+            if os.path.exists(newAudioPath):
 
                 @after_this_request
                 def remove_file(response):
@@ -224,9 +233,9 @@ def home():
                     return response
             
                 return send_file(
-                    audioPath,
+                    newAudioPath,
                     as_attachment=True,
-                    download_name=os.path.basename(audioPath)
+                    download_name=os.path.basename(newAudioPath)
                 )
 
             else:
