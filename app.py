@@ -107,8 +107,7 @@ def downloadVideo(url, selectedResolution):
 
             audio_clip = ffmpeg.input(AudioPath)
 
-            ffmpeg.concat(video_clip, audio_clip, v=1, a=1).output(OutputPath).run()
-            
+            ffmpeg.concat(video_clip, audio_clip, v=1, a=1).output(OutputPath).run(overwrite_output=True)
 
             print("Merging complete!")
 
@@ -198,16 +197,27 @@ def home():
 
             print(videoPath)
 
-            if videoPath:
+            newVideoPath = videoPath.replace("Final ", "")
+
+            print(newVideoPath)
+
+            if os.path.exists(videoPath):
+                os.replace(videoPath, newVideoPath)
+                print(f"File renamed to: {newVideoPath}")
+                
+            else:
+                print(f"Error: The file at {videoPath} does not exist.")
+
+            if newVideoPath:
                 @after_this_request
                 def remove_file(response):
                     threading.Thread(target=deleteVideoFileAfterDelay).start()
                     return response
 
                 return send_file(
-                    videoPath,
+                    newVideoPath,
                     as_attachment=True,
-                    download_name=os.path.basename(videoPath)
+                    download_name=os.path.basename(newVideoPath)
                 )
             else:
                 return "Video File download failed, Please try any other video.", 404
