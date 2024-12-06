@@ -211,7 +211,7 @@ def home():
                     download_name=os.path.basename(videoPath)
                 )
             else:
-                return "Video File download failed", 404
+                return "Video File download failed, Please try any other video.", 404
             
         elif "download_audio_button_mine" in request.form:
 
@@ -231,7 +231,7 @@ def home():
                 )
 
             else:
-                return "Audio File download failed", 404
+                return "Audio File download failed, Please try any other video", 404
             
     return render_template(
         'index.html', 
