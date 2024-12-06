@@ -58,13 +58,10 @@ RESERVED_WORDS = {'CON', 'PRN', 'AUX', 'NUL', 'COM1', 'COM2', 'COM3', 'COM4', 'C
 
 def sanitize_filename(filename):
     # Remove invalid characters
-    filename = re.sub(INVALID_CHARACTERS, '_', filename)
+    filename = re.sub(INVALID_CHARACTERS, '', filename)
     
     # Remove any non-ASCII characters 
     filename = ''.join(c for c in filename if ord(c) < 128)
-    
-    # Replace spaces with underscores or something else if necessary
-    filename = filename.replace(' ', '_')
 
     # Remove leading/trailing spaces
     filename = filename.strip()
@@ -137,9 +134,11 @@ def downloadAudio(url):
         if audioStreams:
             audioStreams.download('Audios/')
 
-            output_filename = f"Audios/Final-{audioStreams.default_filename.replace('.m4a', '.mp3')}"
+            AudioFilePath = sanitize_filename(audioStreams.default_filename)
 
-            input_file = f"Audios/{audioStreams.default_filename}"
+            output_filename = f"Audios/Final-{AudioFilePath.replace('.m4a', '.mp3')}"
+
+            input_file = f"Audios/{AudioFilePath}"
 
             ffmpeg.input(input_file).output(output_filename, acodec='libmp3lame', ar='44100', ac=2, ab='192k').run(overwrite_output=True)
 
