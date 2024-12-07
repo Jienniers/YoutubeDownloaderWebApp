@@ -50,19 +50,40 @@ except ImportError:
 
 app = Flask(__name__)
 
-# List of invalid characters for Windows filenames
 INVALID_CHARACTERS = r'[<>:"/\\|?*]'
 
 # Reserved words that cannot be used as filenames in Windows
-RESERVED_WORDS = {'CON', 'PRN', 'AUX', 'NUL', 'COM1', 'COM2', 'COM3', 'COM4', 'COM5', 'COM6', 'COM7', 'COM8', 'COM9', 'LPT1', 'LPT2', 'LPT3', 'LPT4', 'LPT5', 'LPT6', 'LPT7', 'LPT8', 'LPT9'}
+RESERVED_WORDS = {
+    'CON', 'PRN', 'AUX', 'NUL', 'COM1', 'COM2', 'COM3', 'COM4', 'COM5', 'COM6', 'COM7', 'COM8', 'COM9', 
+    'LPT1', 'LPT2', 'LPT3', 'LPT4', 'LPT5', 'LPT6', 'LPT7', 'LPT8', 'LPT9'
+}
+
+# Regex pattern to match emojis based on common emoji Unicode ranges
+EMOJI_PATTERN = (
+    r'[\U0001F600-\U0001F64F'   # Emoticons
+    r'\U0001F300-\U0001F5FF'   # Miscellaneous Symbols and Pictographs
+    r'\U0001F680-\U0001F6FF'   # Transport and Map Symbols
+    r'\U0001F700-\U0001F77F'   # Alchemical Symbols
+    r'\U0001F780-\U0001F7FF'   # Geometric Shapes Extended
+    r'\U0001F800-\U0001F8FF'   # Supplemental Arrows-C
+    r'\U0001F900-\U0001F9FF'   # Supplemental Symbols and Pictographs
+    r'\U0001FA00-\U0001FA6F'   # Chess Symbols
+    r'\U0001FA70-\U0001FAFF'   # Symbols and Pictographs Extended-A
+    r'\U00002702-\U000027B0'   # Dingbats
+    r'\U0001F004-\U0001F0CF'   # Playing Cards
+    r'\U00002B50]'             # Star symbol
+)
 
 def sanitize_filename(filename):
     # Remove invalid characters
     filename = re.sub(INVALID_CHARACTERS, '', filename)
     
-    # Remove any non-ASCII characters 
+    # Remove emojis using the defined emoji pattern
+    filename = re.sub(EMOJI_PATTERN, '', filename)
+    
+    # Remove any non-ASCII characters (excluding emojis that may already be removed)
     filename = ''.join(c for c in filename if ord(c) < 128)
-
+    
     # Remove leading/trailing spaces
     filename = filename.strip()
     
@@ -74,6 +95,7 @@ def sanitize_filename(filename):
     # Reassemble the filename with the extension
     sanitized_filename = f"{base}.{ext}" if ext else base
     return sanitized_filename
+
 
 def downloadVideo(url, selectedResolution):
     try:
@@ -87,7 +109,6 @@ def downloadVideo(url, selectedResolution):
             print(f"Downloading: {yt.title}")
             print(f"Downloading {videoStreams.resolution} resolution...")
 
-
             videoStreams.download("Videos/")
             audioStreams.download("Videos/")
 
@@ -96,26 +117,36 @@ def downloadVideo(url, selectedResolution):
             VideoFileName = videoStreams.default_filename
             AudioFileName = audioStreams.default_filename
 
-            VideoFileName = sanitize_filename(VideoFileName)
-            AudioFileName = sanitize_filename(AudioFileName)
-
             VideoPath = os.path.join('Videos', VideoFileName)
             AudioPath = os.path.join('Videos', AudioFileName)
             OutputPath = os.path.join('Videos', "Final " + VideoFileName)
-
+            
             video_clip = ffmpeg.input(VideoPath)
 
             audio_clip = ffmpeg.input(AudioPath)
 
             ffmpeg.concat(video_clip, audio_clip, v=1, a=1).output(OutputPath).run(overwrite_output=True)
+            
+            sanitizedVideoFileName = sanitize_filename(VideoFileName)
+            sanitizedAudioFileName = sanitize_filename(AudioFileName)
+
+            sanitizedVideoPath = os.path.join('Videos', sanitizedVideoFileName)
+            sanitizedAudioPath = os.path.join('Videos', sanitizedAudioFileName)
+            sanitizedOutputPath = os.path.join('Videos', "Final " + sanitizedVideoFileName)
+
+            os.replace(VideoPath, sanitizedVideoPath)
 
             print("Merging complete!")
 
-            print(f"VideoPath: {VideoPath}")
-            print(f"AudioPath: {AudioPath}")
-            print(f"SoundPath: {OutputPath}")
+            print(f"Orignal VideoPath: {VideoPath}")
+            print(f"Orignal AudioPath: {AudioPath}")
+            print(f"Orignal OutputPath: {OutputPath}")
 
-            return OutputPath
+            print(f"Sanitized VideoPath: {sanitizedVideoPath}")
+            print(f"Sanitized AudioPath: {sanitizedAudioPath}")
+            print(f"Sanitized OutputPath: {sanitizedOutputPath}")
+
+            return sanitizedOutputPath
         else:
             print("No streams available for the video.")
             return None
@@ -174,16 +205,22 @@ def home():
     title = ""
     visibility = "hidden"
     resolutions = ""
+
     if request.method == 'POST':
         url_text = request.form['search_url']
 
         if 'search' in request.form:
             if 'search_url' in request.form and 'https' in url_text.lower():
                 stored_url = url_text
+
                 print(stored_url)
+
                 youtube = YouTube(url_text, use_po_token=True)
+                
                 thumbnail = youtube.thumbnail_url
+
                 title = f"{youtube.title}"
+
                 visibility = "visible"
 
                 resolutions = get_video_resolutions(stored_url)
@@ -192,7 +229,9 @@ def home():
 
         elif "download_button_mine" in request.form:
             print(stored_url)
+
             selectedResolution = request.form['resolutions']
+
             videoPath = downloadVideo(stored_url, selectedResolution)
 
             print(videoPath)
@@ -223,7 +262,7 @@ def home():
                 return "Video File download failed, Please try any other video.", 404
             
         elif "download_audio_button_mine" in request.form:
-
+            
             audioPath = downloadAudio(stored_url)
             
             newAudioPath = audioPath.replace("Final-", "")
