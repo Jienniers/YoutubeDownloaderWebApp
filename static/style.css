@@ -18,7 +18,7 @@ body {
 }
 
 .title_div {
-  margin-top: 70px;
+  margin-top: 40px;
   z-index: 1; /* Ensures that the title is always on top */
   margin-bottom: 50px;
 }
@@ -29,7 +29,7 @@ body {
   left: 0;
   margin: 0 auto;
   width: 700px;
-  height: 530px;
+  height: 600px;
   padding: 20px;
   background-color: #312e3f;
   border-radius: 20px;
@@ -159,6 +159,10 @@ select:hover {
   margin-left: 10px;
 }
 
+#url_link{
+  height: 7%;
+}
+
 @media (max-width: 768px) {
   .title_div{
     margin-top: 50px;
@@ -170,7 +174,7 @@ select:hover {
 
   .bubble-box {
     width: 90%;
-    height: 750px;
+    height: 820px;
   }
 
   .bubble-box ._thumbnail {
@@ -193,6 +197,9 @@ select:hover {
 
   .bubble-box .file_lenght{
     align-self: center;
+  }
+  #url_link{
+    height: 5%;
   }
 }
 
