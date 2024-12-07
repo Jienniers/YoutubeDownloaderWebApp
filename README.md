@@ -33,7 +33,7 @@ After running the program and everything is running fine, you need to open your 
 
 ## Tech Stack
 
-**Frontend:** HTML, CSS
+**Frontend:** HTML, CSS, JS
 
 **Backend:** Flask
 
