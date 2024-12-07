@@ -148,25 +148,15 @@ def downloadAudio(url):
         audioStreams = yt.streams.filter(only_audio=True).first()
 
         if audioStreams:
-            audioStreams.download('Audios/')
+            newFileName = sanitize_filename(yt.title)
+
+            audioStreams.download('Audios/', filename=f"{newFileName}.mp3")
 
             print("\nDone Downloading Audio")
 
-            audioFileName = audioStreams.default_filename
-            
-            audioFilePath = os.path.join("Audios", audioFileName)
+            outputPath = os.path.join('Audios', newFileName + ".mp3")
 
-            outputFilePath = os.path.join("Audios", f"Final-{audioFileName.replace('.m4a', '.mp3')}")
-            
-            ffmpeg.input(audioFilePath).output(outputFilePath, acodec='libmp3lame', ar='44100', ac=2, ab='192k').run(overwrite_output=True)
-
-            sanitizedAudioFileName = sanitize_filename(audioFileName)
-
-            sanitizedAudioFilePath = os.path.join('Audios', f"Final-{sanitizedAudioFileName.replace('.m4a', '.mp3')}")
-
-            os.replace(outputFilePath, sanitizedAudioFilePath)
-
-            return sanitizedAudioFilePath
+            return outputPath
 
     except Exception as e:
         print(f"Error: {e}")
@@ -238,11 +228,7 @@ def home():
 
             videoPath = downloadVideo(stored_url, selectedResolution)
 
-            print(videoPath)
-
             newVideoPath = videoPath.replace("Final ", "")
-
-            print(newVideoPath)
 
             if os.path.exists(videoPath):
                 os.replace(videoPath, newVideoPath)
@@ -268,17 +254,8 @@ def home():
         elif "download_audio_button_mine" in request.form:
 
             audioPath = downloadAudio(stored_url)
-            
-            newAudioPath = audioPath.replace("Final-", "")
 
             if os.path.exists(audioPath):
-                os.rename(audioPath, newAudioPath)
-                print(f"File renamed to: {newAudioPath}")
-                
-            else:
-                print(f"Error: The file at {audioPath} does not exist.")
-
-            if os.path.exists(newAudioPath):
 
                 @after_this_request
                 def remove_file(response):
@@ -286,9 +263,9 @@ def home():
                     return response
             
                 return send_file(
-                    newAudioPath,
+                    audioPath,
                     as_attachment=True,
-                    download_name=os.path.basename(newAudioPath)
+                    download_name=os.path.basename(audioPath)
                 )
 
             else:
