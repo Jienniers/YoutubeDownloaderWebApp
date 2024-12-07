@@ -109,32 +109,22 @@ def downloadVideo(url, selectedResolution):
             print(f"Downloading: {yt.title}")
             print(f"Downloading {videoStreams.resolution} resolution...")
 
-            videoStreams.download("Videos/")
-            audioStreams.download("Videos/")
+            newFileName = sanitize_filename(yt.title)
+
+            videoStreams.download("Videos/", filename=f"{newFileName}.mp4")
+            audioStreams.download("Videos/", filename=f"{newFileName}.mp3")
 
             print("\nDone Downloading Video")
 
-            videoFileName = videoStreams.default_filename
-            audioFileName = audioStreams.default_filename
-
-            videoPath = os.path.join('Videos', videoFileName)
-            audioPath = os.path.join('Videos', audioFileName)
-            outputPath = os.path.join('Videos', "Final " + videoFileName)
+            videoPath = os.path.join('Videos', f"{newFileName}.mp4")
+            audioPath = os.path.join('Videos', f"{newFileName}.mp3")
+            outputPath = os.path.join('Videos', "Final " + newFileName + ".mp4")
             
             video_clip = ffmpeg.input(videoPath)
 
             audio_clip = ffmpeg.input(audioPath)
 
             ffmpeg.concat(video_clip, audio_clip, v=1, a=1).output(outputPath).run(overwrite_output=True)
-            
-            sanitizedVideoFileName = sanitize_filename(videoFileName)
-            sanitizedAudioFileName = sanitize_filename(audioFileName)
-
-            sanitizedVideoPath = os.path.join('Videos', sanitizedVideoFileName)
-            sanitizedAudioPath = os.path.join('Videos', sanitizedAudioFileName)
-            sanitizedOutputPath = os.path.join('Videos', "Final " + sanitizedVideoFileName)
-
-            os.replace(videoPath, sanitizedVideoPath)
 
             print("Merging complete!")
 
@@ -142,11 +132,7 @@ def downloadVideo(url, selectedResolution):
             print(f"Orignal AudioPath: {audioPath}")
             print(f"Orignal OutputPath: {outputPath}")
 
-            print(f"Sanitized VideoPath: {sanitizedVideoPath}")
-            print(f"Sanitized AudioPath: {sanitizedAudioPath}")
-            print(f"Sanitized OutputPath: {sanitizedOutputPath}")
-
-            return sanitizedOutputPath
+            return outputPath
         else:
             print("No streams available for the video.")
             return None
