@@ -112,35 +112,35 @@ def downloadVideo(url, selectedResolution):
             videoStreams.download("Videos/")
             audioStreams.download("Videos/")
 
-            print("\nDone Downloading")
+            print("\nDone Downloading Video")
 
-            VideoFileName = videoStreams.default_filename
-            AudioFileName = audioStreams.default_filename
+            videoFileName = videoStreams.default_filename
+            audioFileName = audioStreams.default_filename
 
-            VideoPath = os.path.join('Videos', VideoFileName)
-            AudioPath = os.path.join('Videos', AudioFileName)
-            OutputPath = os.path.join('Videos', "Final " + VideoFileName)
+            videoPath = os.path.join('Videos', videoFileName)
+            audioPath = os.path.join('Videos', audioFileName)
+            outputPath = os.path.join('Videos', "Final " + videoFileName)
             
-            video_clip = ffmpeg.input(VideoPath)
+            video_clip = ffmpeg.input(videoPath)
 
-            audio_clip = ffmpeg.input(AudioPath)
+            audio_clip = ffmpeg.input(audioPath)
 
-            ffmpeg.concat(video_clip, audio_clip, v=1, a=1).output(OutputPath).run(overwrite_output=True)
+            ffmpeg.concat(video_clip, audio_clip, v=1, a=1).output(outputPath).run(overwrite_output=True)
             
-            sanitizedVideoFileName = sanitize_filename(VideoFileName)
-            sanitizedAudioFileName = sanitize_filename(AudioFileName)
+            sanitizedVideoFileName = sanitize_filename(videoFileName)
+            sanitizedAudioFileName = sanitize_filename(audioFileName)
 
             sanitizedVideoPath = os.path.join('Videos', sanitizedVideoFileName)
             sanitizedAudioPath = os.path.join('Videos', sanitizedAudioFileName)
             sanitizedOutputPath = os.path.join('Videos', "Final " + sanitizedVideoFileName)
 
-            os.replace(VideoPath, sanitizedVideoPath)
+            os.replace(videoPath, sanitizedVideoPath)
 
             print("Merging complete!")
 
-            print(f"Orignal VideoPath: {VideoPath}")
-            print(f"Orignal AudioPath: {AudioPath}")
-            print(f"Orignal OutputPath: {OutputPath}")
+            print(f"Orignal VideoPath: {videoPath}")
+            print(f"Orignal AudioPath: {audioPath}")
+            print(f"Orignal OutputPath: {outputPath}")
 
             print(f"Sanitized VideoPath: {sanitizedVideoPath}")
             print(f"Sanitized AudioPath: {sanitizedAudioPath}")
@@ -164,15 +164,23 @@ def downloadAudio(url):
         if audioStreams:
             audioStreams.download('Audios/')
 
-            AudioFilePath = sanitize_filename(audioStreams.default_filename)
+            print("\nDone Downloading Audio")
 
-            output_filename = f"Audios/Final-{AudioFilePath.replace('.m4a', '.mp3')}"
+            audioFileName = audioStreams.default_filename
+            
+            audioFilePath = os.path.join("Audios", audioFileName)
 
-            input_file = f"Audios/{AudioFilePath}"
+            outputFilePath = os.path.join("Audios", f"Final-{audioFileName.replace('.m4a', '.mp3')}")
+            
+            ffmpeg.input(audioFilePath).output(outputFilePath, acodec='libmp3lame', ar='44100', ac=2, ab='192k').run(overwrite_output=True)
 
-            ffmpeg.input(input_file).output(output_filename, acodec='libmp3lame', ar='44100', ac=2, ab='192k').run(overwrite_output=True)
+            sanitizedAudioFileName = sanitize_filename(audioFileName)
 
-            return output_filename
+            sanitizedAudioFilePath = os.path.join('Audios', f"Final-{sanitizedAudioFileName.replace('.m4a', '.mp3')}")
+
+            os.replace(outputFilePath, sanitizedAudioFilePath)
+
+            return sanitizedAudioFilePath
 
     except Exception as e:
         print(f"Error: {e}")
@@ -262,7 +270,7 @@ def home():
                 return "Video File download failed, Please try any other video.", 404
             
         elif "download_audio_button_mine" in request.form:
-            
+
             audioPath = downloadAudio(stored_url)
             
             newAudioPath = audioPath.replace("Final-", "")
