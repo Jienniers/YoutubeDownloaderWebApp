@@ -45,7 +45,7 @@ After that you can open command line interface in the directly where this progra
 
 #### Mobile Screenshots
 
-![App Screenshot](https://github.com/Jienniers/YoutubeDownloaderWebApp/blob/main/screenshots/mobileScreenshot.jpeg)
+![App Screenshot](https://github.com/Jienniers/YoutubeDownloaderWebApp/blob/main/screenshots/mobileScreenshot.png)
 
 ## Support
 
