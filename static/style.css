@@ -143,10 +143,8 @@ select:hover {
 }
 
 #resolutions{
-  float: left;
-  position: absolute;
-  left: 55%;
-  top: 60%;
+  margin-top: 50px;
+  margin-left: 30px;
 }
 
 .bubble-box ._thumbnail {
@@ -188,11 +186,9 @@ select:hover {
   }
 
   #resolutions {
-    left: 50%; /* Move it to the center */
-    top: 90%;
-    transform: translateX(-50%); /* Center the element */
     width: 100%;
     max-width: 350px;
+    margin-left: 0%;
   }
 
   .bubble-box .file_lenght{
