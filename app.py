@@ -213,6 +213,7 @@ def home():
     title = ""
     visibility = "hidden"
     resolutions = ""
+    videoLenght = ""
 
     if request.method == 'POST':
         url_text = request.form['search_url']
@@ -230,6 +231,15 @@ def home():
                 title = f"{youtube.title}"
 
                 visibility = "visible"
+
+                vidLength = youtube.length
+
+                minutes = vidLength // 60
+                seconds = vidLength % 60
+
+                formatted_length = f"{minutes:02}:{seconds:02}"
+
+                videoLenght = f"Video Length: {formatted_length}"
 
                 resolutions = get_video_resolutions(stored_url)
 
@@ -304,7 +314,8 @@ def home():
         title=title, 
         un_visible=visibility,
         res_visibility=visibility,
-        resolutions=resolutions)
+        resolutions=resolutions,
+        videoLenght=videoLenght)
 
 
 if __name__ == '__main__':
