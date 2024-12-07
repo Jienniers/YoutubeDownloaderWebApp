@@ -19,6 +19,7 @@ After that you can open command line interface in the directly where this progra
 ```bash
   python app.py
 ```
+After running the program and everything is running fine, you need to open your browser and type in this url: ``` http://localhost:5000/ ```
 
 **Note:** After the program has finished installing pytubefix by itself it might not work and give ImportError you just need to re run the program to fix it or manually first install all the packages before running the program.
 
