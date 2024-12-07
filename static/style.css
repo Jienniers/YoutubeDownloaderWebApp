@@ -111,6 +111,7 @@ input[type="text"],
   font-size: x-large; 
   align-self: center;
   font-family: 'Roboto', sans-serif;
+  margin-bottom: 20px;
 }
 
 .bubble-box .audio_download_btn{
