@@ -154,6 +154,11 @@ select:hover {
   float: left;
 }
 
+.bubble-box .file_lenght{
+  margin-top: 30px;
+  margin-left: 10px;
+}
+
 @media (max-width: 768px) {
   .title_div{
     margin-top: 50px;
@@ -186,6 +191,10 @@ select:hover {
     transform: translateX(-50%); /* Center the element */
     width: 100%;
     max-width: 350px;
+  }
+
+  .bubble-box .file_lenght{
+    align-self: center;
   }
 }
 
