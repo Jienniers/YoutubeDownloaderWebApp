@@ -238,7 +238,7 @@ def home():
             videoPath = downloadVideo(stored_url, selectedResolution)
 
             if (videoPath == None):
-                return "Please Try again! Erorr occured", 404
+                return "Please Try again! Error occured", 404
 
             newVideoPath = videoPath.replace("Final ", "")
 
@@ -268,7 +268,7 @@ def home():
             audioPath = downloadAudio(stored_url)
 
             if (audioPath == None):
-                return "Please Try again! Erorr occured", 404
+                return "Please Try again! Error occured", 404
 
             if os.path.exists(audioPath):
 
