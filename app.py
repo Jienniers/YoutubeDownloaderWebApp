@@ -201,11 +201,11 @@ def get_video_length(youtube:YouTube):
 
 @app.route('/', methods=['GET', 'POST'])
 def home():
-    thumbnail = ""
-    title = ""
-    visibility = "hidden"
-    resolutions = ""
-    videoLenght = ""
+    session["thumbnail"] = ""
+    session["title"] = ""
+    session["visibility"] = "hidden"
+    session["resolutions"] = ""
+    session["videoLenght"] = ""
 
     if request.method == 'POST':
         url_text = request.form['search_url']
@@ -218,17 +218,17 @@ def home():
 
                 youtube = YouTube(url_text, use_po_token=True)
                 
-                thumbnail = youtube.thumbnail_url
+                session["thumbnail"] = youtube.thumbnail_url
 
-                title = f"{youtube.title}"
+                session["title"] = f"{youtube.title}"
 
-                visibility = "visible"
+                session["visibility"] = "visible"
 
-                videoLenght = f"Video Length: {get_video_length(youtube)}"
+                session["videoLenght"] = f"Video Length: {get_video_length(youtube)}"
 
-                resolutions = get_video_resolutions(session.get("stored_url"))
+                session["resolutions"] = get_video_resolutions(session.get("stored_url"))
 
-                print("Available resolutions:", resolutions)
+                print("Available resolutions:", session.get("resolutions"))
 
         elif "download_button_mine" in request.form:
             print(session.get("stored_url"))
@@ -289,12 +289,12 @@ def home():
             
     return render_template(
         'index.html', 
-        thumbnail=thumbnail, 
-        title=title, 
-        un_visible=visibility,
-        res_visibility=visibility,
-        resolutions=resolutions,
-        videoLenght=videoLenght)
+        thumbnail = session.get("thumbnail"), 
+        title = session.get("title"), 
+        un_visible = session.get("visibility"),
+        res_visibility = session.get("visibility"),
+        resolutions=session.get("resolutions"),
+        videoLenght = session.get("videoLenght"))
 
 
 if __name__ == '__main__':
