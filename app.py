@@ -113,8 +113,14 @@ def downloadVideo(url, selectedResolution):
 
             newFileName = sanitize_filename(yt.title)
 
-            videoStreams.download("Videos/", filename=f"{newFileName}.mp4")
-            audioStreams.download("Videos/", filename=f"{newFileName}.mp3")
+            video_thread = threading.Thread(target=lambda: videoStreams.download("Videos/", filename=f"{newFileName}.mp4",))
+            audio_thread = threading.Thread(target=lambda: audioStreams.download("Videos/", filename=f"{newFileName}.mp3"))
+
+            video_thread.start()
+            audio_thread.start()
+
+            video_thread.join()
+            audio_thread.join()
 
             print("\nDone Downloading Video")
 
