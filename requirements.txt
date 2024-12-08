@@ -9,3 +9,4 @@ pytubefix
 gunicorn
 flask
 ffmpeg-python
+secrets
