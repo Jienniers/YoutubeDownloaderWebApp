@@ -181,6 +181,15 @@ def get_video_resolutions(video_url):
     resolutions = list(sorted(set(resolutions), key=lambda x: int(x[:-1]), reverse=True))
     return resolutions
 
+def get_video_length(youtube:YouTube):
+    vidLength = youtube.length
+
+    minutes = vidLength // 60
+    seconds = vidLength % 60
+
+    formatted_length = f"{minutes:02}:{seconds:02}"
+    return formatted_length
+
 stored_url = ""
 @app.route('/', methods=['GET', 'POST'])
 def home():
@@ -208,14 +217,7 @@ def home():
 
                 visibility = "visible"
 
-                vidLength = youtube.length
-
-                minutes = vidLength // 60
-                seconds = vidLength % 60
-
-                formatted_length = f"{minutes:02}:{seconds:02}"
-
-                videoLenght = f"Video Length: {formatted_length}"
+                videoLenght = f"Video Length: {get_video_length(youtube)}"
 
                 resolutions = get_video_resolutions(stored_url)
 
