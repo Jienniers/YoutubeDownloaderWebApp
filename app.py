@@ -5,6 +5,7 @@ import shutil
 import sys
 import subprocess
 import re
+import secrets
 
 def install(package):
     subprocess.check_call([sys.executable, "-m", "pip", "install", package])
@@ -23,7 +24,7 @@ except ImportError:
         sys.exit(1)
 
 try:
-    from flask import Flask, render_template, request, send_file, after_this_request
+    from flask import Flask, render_template, request, send_file, after_this_request, session
 except ImportError:
     if sys.platform.startswith("win"):
         os.system("python -m pip install flask")
@@ -49,6 +50,7 @@ except ImportError:
         exit()
 
 app = Flask(__name__)
+app.secret_key = secrets.token_hex(16)
 
 INVALID_CHARACTERS = r'[<>:"/\\|?*]'
 
@@ -197,10 +199,8 @@ def get_video_length(youtube:YouTube):
     formatted_length = f"{minutes:02}:{seconds:02}"
     return formatted_length
 
-stored_url = ""
 @app.route('/', methods=['GET', 'POST'])
 def home():
-    global stored_url
     thumbnail = ""
     title = ""
     visibility = "hidden"
@@ -212,9 +212,9 @@ def home():
 
         if 'search' in request.form:
             if 'search_url' in request.form and 'https' in url_text.lower():
-                stored_url = url_text
+                session['stored_url'] = url_text
 
-                print(stored_url)
+                print(session.get("stored_url"))
 
                 youtube = YouTube(url_text, use_po_token=True)
                 
@@ -226,16 +226,16 @@ def home():
 
                 videoLenght = f"Video Length: {get_video_length(youtube)}"
 
-                resolutions = get_video_resolutions(stored_url)
+                resolutions = get_video_resolutions(session.get("stored_url"))
 
                 print("Available resolutions:", resolutions)
 
         elif "download_button_mine" in request.form:
-            print(stored_url)
+            print(session.get("stored_url"))
 
             selectedResolution = request.form['resolutions']
 
-            videoPath = downloadVideo(stored_url, selectedResolution)
+            videoPath = downloadVideo(session.get("stored_url"), selectedResolution)
 
             if (videoPath == None):
                 return "Please Try again! Error occured", 404
@@ -264,8 +264,9 @@ def home():
                 return "Video File download failed, Please try any other video.", 404
             
         elif "download_audio_button_mine" in request.form:
+            print(session.get("stored_url"))
 
-            audioPath = downloadAudio(stored_url)
+            audioPath = downloadAudio(session.get("stored_url"))
 
             if (audioPath == None):
                 return "Please Try again! Error occured", 404
