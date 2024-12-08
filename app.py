@@ -143,18 +143,25 @@ def downloadVideo(url, selectedResolution):
 
 def downloadAudio(url):
     try:
-        yt = YouTube(url, use_po_token=True, on_progress_callback = on_progress)
-
+        yt = YouTube(url, use_po_token=True, on_progress_callback=on_progress)
+        
         audioStreams = yt.streams.filter(only_audio=True).first()
-
+        
         if audioStreams:
+
             newFileName = sanitize_filename(yt.title)
-
-            audioStreams.download('Audios/', filename=f"{newFileName}.mp3")
-
+            
+            audioPath = audioStreams.download(output_path='Audios/', filename=f"{newFileName}.m4a")
+            
             print("\nDone Downloading Audio")
+            
+            outputPath = os.path.join('Audios', f"{newFileName}.mp3")
+        
+            ffmpeg.input(audioPath).output(outputPath, acodec='libmp3lame').run()
+            
+            os.remove(audioPath)
 
-            outputPath = os.path.join('Audios', newFileName + ".mp3")
+            print(f"Audio converted and saved as {outputPath}")
 
             return outputPath
 
