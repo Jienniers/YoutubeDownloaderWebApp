@@ -7,7 +7,8 @@
 body {
   margin: 0;
   padding: 0;
-  background-color: #15131d;
+  background: linear-gradient(0deg, #15131d 0%, #342f48 100%);
+  background-size: 100% 130%;
 }
 
 .title_div ._title {
