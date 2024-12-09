@@ -28,7 +28,7 @@ body {
   top: 0;
   left: 0;
   margin: 0 auto;
-  width: 700px;
+  width: 70%;
   height: 600px;
   padding: 20px;
   background-color: #312e3f;
@@ -40,6 +40,12 @@ body {
   flex-direction: column;
   align-items: flex-start; /* Align items to the start (top) */
   z-index: 0; /* Ensures that the bubble box is behind the title */
+
+  -webkit-box-shadow: -9px 8px 135px 8px rgba(0,0,0,0.75);
+  -moz-box-shadow: -9px 8px 135px 8px rgba(0,0,0,0.75);
+  box-shadow: -9px 8px 135px 8px rgba(0,0,0,0.75);
+
+  
 }
 
 .bubble-box h1 {
