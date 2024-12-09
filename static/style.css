@@ -45,8 +45,6 @@ body {
   -webkit-box-shadow: -9px 8px 135px 8px rgba(0,0,0,0.75);
   -moz-box-shadow: -9px 8px 135px 8px rgba(0,0,0,0.75);
   box-shadow: -9px 8px 135px 8px rgba(0,0,0,0.75);
-
-  
 }
 
 .bubble-box h1 {
@@ -122,12 +120,11 @@ input[type="text"],
 }
 
 .bubble-box .audio_download_btn{
-  margin-left: 10px;
   float: right;
 }
 
 .bubble-box .download_button{
-  margin-left: 10px;
+  margin-right: 70px;
   float: right;
 }
 
@@ -151,7 +148,7 @@ select:hover {
 
 #resolutions{
   margin-top: 50px;
-  margin-left: 30px;
+  margin-left: 75px;
 }
 
 .bubble-box ._thumbnail {
