@@ -132,12 +132,9 @@ def downloadVideo(url, selectedResolution):
 
             audio_clip = ffmpeg.input(audioPath)
 
-            ffmpeg.concat(video_clip, audio_clip, v=1, a=1).output(
-                outputPath,
-                vcodec='copy',  # No re-encoding for video, keep original quality
-                acodec='copy',  # No re-encoding for audio, keep original quality
-                threads=8       # Adjust threads to match the number of cores in your CPU
-            ).run(overwrite_output=True)
+            num_threads = os.cpu_count()
+
+            ffmpeg.concat(video_clip, audio_clip, v=1, a=1).output(outputPath, threads=num_threads).run(overwrite_output=True)
 
             print("Merging complete!")
 
