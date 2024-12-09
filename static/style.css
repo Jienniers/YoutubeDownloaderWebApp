@@ -120,6 +120,7 @@ input[type="text"],
 }
 
 .bubble-box .audio_download_btn{
+  margin-left: 10px;
   float: right;
 }
 
@@ -191,6 +192,14 @@ select:hover {
 
   .search_btn, .audio_download_btn, .download_button{
       width: 100%;
+  }
+
+  .audio_download_btn{
+    margin-left: 0px;
+  }
+
+  .bubble-box .download_button{
+    margin-right: 0px;
   }
 
   #resolutions {
