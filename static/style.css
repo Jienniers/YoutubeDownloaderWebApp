@@ -30,7 +30,7 @@ body {
   left: 0;
   margin: 0 auto;
   width: 70%;
-  height: 600px;
+  height: 700px;
   padding: 20px;
   background-color: #312e3f;
   border-radius: 20px;
@@ -166,6 +166,10 @@ select:hover {
 
 #url_link{
   height: 7%;
+}
+
+.inline_items_div{
+  margin-top: 50px;
 }
 
 @media (max-width: 768px) {
