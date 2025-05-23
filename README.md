@@ -3,6 +3,21 @@
 
 A Web App for downloading youtube videos at your favourite resolution.
 
+### ⚖️ Legal Disclaimer
+
+> 🚫 **This project is intended for educational and personal use only.**
+>
+> Downloading videos or audio from **YouTube** using this tool may violate [YouTube’s Terms of Service](https://www.youtube.com/t/terms) and/or **copyright laws**.
+>
+> The developer of this project does **not** support or encourage the downloading of copyrighted content from YouTube without permission from the content owner.
+>
+> This tool is provided **as-is**, with **no warranty** of any kind. Use it **at your own risk**.
+>
+> By using this project, you agree to take full responsibility for how you use it and to comply with all applicable laws and platform policies.
+
+> 📌 **Note:** This project is **not affiliated with**, **endorsed by**, or **sponsored by YouTube** or Google Inc.
+
+
 ## Note
 All this guide is for **windows**, I have not tested this web app on any other operating system so I don't know how it will work on there.
 
