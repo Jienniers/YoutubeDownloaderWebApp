@@ -130,6 +130,25 @@ To contribute, follow the steps below:
 
 ---
 
+
+## 🛠️ Support & Issues
+
+If you encounter any bugs, have questions, or would like to suggest new features:
+
+* 👉 Head over to the [Issues](../../issues) tab in this repository
+* 🐛 Click on **"New Issue"** to report a bug or share your suggestion
+* 📋 Please include as much detail as possible:
+
+  * Steps to reproduce the issue (if it's a bug)
+  * Expected vs actual behavior
+  * Screenshots (if helpful)
+
+Your feedback helps improve this project and is always appreciated!
+
+> 🙏 Thank you for taking the time to contribute or report issues!
+
+---
+
 ## 📄 License
 
 This project is licensed under the [MIT License](LICENSE).
@@ -139,5 +158,6 @@ This project is licensed under the [MIT License](LICENSE).
 ## 👤 Author
 
 * Developed by [@Jienniers](https://github.com/Jienniers)
+
 
 Feel free to ⭐ the repository if you find it useful!
