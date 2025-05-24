@@ -100,7 +100,7 @@ def sanitize_filename(filename):
     # Remove emojis using the defined emoji pattern
     filename = re.sub(EMOJI_PATTERN, '', filename)
 
-    # Remove any non-ASCII characters (excluding emojis that may already be removed) (IGNORE: # noqa)
+    # Remove any non-ASCII characters (excluding emojis that may already be removed)
     filename = ''.join(c for c in filename if ord(c) < 128)
 
     # Remove leading/trailing spaces
