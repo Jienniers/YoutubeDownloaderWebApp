@@ -19,9 +19,11 @@ jobs:
         with:
           python-version: '3.x'
 
-      - name: Install dependencies
+      - name: Install dependencies from requirements.txt
         run: |
           python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          # Ensure flake8 and mypy are installed even if missing in requirements.txt
           pip install flake8 mypy
 
       - name: Run flake8
