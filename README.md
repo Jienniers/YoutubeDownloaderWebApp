@@ -35,7 +35,7 @@ This guide is specific to **Windows** systems. Compatibility with other operatin
 
 ### Dependencies
 
-The program attempts to auto-install required modules. If it fails, you can manually install them with:
+Install all the required modules by the following command:
 
 ```bash
 pip install flask pytubefix ffmpeg-python
@@ -54,7 +54,6 @@ python app.py
 
 ### Notes
 
-* If you receive an `ImportError` after installing modules, try re-running the application.
 * JavaScript must be enabled in your browser to receive download start alerts. Make sure to click "OK" to confirm the download.
 
 ---
