@@ -2,67 +2,19 @@ import os
 import threading
 import time
 import shutil
-import sys
-import subprocess
 import re
 import secrets
+from pytubefix.cli import on_progress
+from pytubefix import YouTube
+from flask import (
+    Flask,
+    render_template,
+    request,
+    send_file,
+    after_this_request,
+    session)
+import ffmpeg
 
-
-def install(package):
-    subprocess.check_call([sys.executable, "-m", "pip", "install", package])
-
-
-try:
-    from pytubefix.cli import on_progress
-    from pytubefix import YouTube
-except ImportError:
-    print("Module 'pytubefix' is not installed. Installing now.")
-    install('pytubefix')
-    try:
-        from pytubefix.cli import on_progress
-        from pytubefix import YouTube
-    except ImportError as e:
-        print(f"Failed to import 'pytubefix' after installation: {e}")
-        sys.exit(1)
-
-try:
-    from flask import (
-        Flask,
-        render_template,
-        request,
-        send_file,
-        after_this_request,
-        session)
-
-except ImportError:
-    if sys.platform.startswith("win"):
-        os.system("python -m pip install flask")
-    else:
-        os.system("python3 -m pip install flask")
-    try:
-        from flask import (
-            Flask,
-            render_template,
-            request,
-            send_file,
-            after_this_request
-            )
-    except ImportError:
-        print("You need python3 installed! Main")
-        exit()
-
-try:
-    import ffmpeg
-except ImportError:
-    if sys.platform.startswith("win"):
-        os.system("python -m pip install ffmpeg-python")
-    else:
-        os.system("python3 -m pip install ffmpeg-python")
-    try:
-        import ffmpeg
-    except ImportError:
-        print("You need python3 installed! Main")
-        exit()
 
 app = Flask(__name__)
 app.secret_key = secrets.token_hex(16)
@@ -118,7 +70,7 @@ def sanitize_filename(filename):
 
 def downloadVideo(url, selectedResolution):
     try:
-        yt = YouTube(url, use_po_token=True, on_progress_callback=on_progress)
+        yt = YouTube(url, on_progress_callback=on_progress)
 
         videoStreams = yt.streams.filter(res=selectedResolution).first()
         audioStreams = yt.streams.filter(only_audio=True).first()
@@ -181,7 +133,7 @@ def downloadVideo(url, selectedResolution):
 
 def downloadAudio(url):
     try:
-        yt = YouTube(url, use_po_token=True, on_progress_callback=on_progress)
+        yt = YouTube(url, on_progress_callback=on_progress)
 
         audioStreams = yt.streams.filter(only_audio=True).first()
 
@@ -263,7 +215,7 @@ def home():
 
                 print(session.get("stored_url"))
 
-                youtube = YouTube(url_text, use_po_token=True)
+                youtube = YouTube(url_text)
 
                 session["thumbnail"] = youtube.thumbnail_url
 
