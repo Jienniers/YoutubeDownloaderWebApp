@@ -101,7 +101,6 @@ def downloadVideo(url, selectedResolution):
 
             newFileName = sanitize_filename(yt.title)
 
-            # Ensure Videos directory exists
             os.makedirs("Videos", exist_ok=True)
 
             video_thread = threading.Thread(
@@ -129,7 +128,6 @@ def downloadVideo(url, selectedResolution):
             audioPath = os.path.join("Videos", f"{newFileName}.mp3")
             outputPath = os.path.join("Videos", "Final " + newFileName + ".mp4")
 
-            # Ensure Videos directory exists before merging (redundant but safe)
             os.makedirs("Videos", exist_ok=True)
 
             video_clip = ffmpeg.input(videoPath)
@@ -165,7 +163,6 @@ def downloadAudio(url):
         if audioStreams:
             newFileName = sanitize_filename(yt.title)
 
-            # Ensure Audios directory exists
             os.makedirs("Audios", exist_ok=True)
 
             audioPath = audioStreams.download(
@@ -176,7 +173,6 @@ def downloadAudio(url):
 
             outputPath = os.path.join("Audios", f"{newFileName}.mp3")
 
-            # Ensure Audios directory exists before conversion (redundant but safe)
             os.makedirs("Audios", exist_ok=True)
 
             ffmpeg.input(audioPath).output(outputPath, acodec="libmp3lame").run()
