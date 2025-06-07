@@ -58,6 +58,18 @@ python app.py
 
 ---
 
+### ⚠️ Filename Safety Notice
+
+When downloading videos, **avoid using titles that contain emojis or characters that are invalid in Windows filenames**, such as:
+
+```
+\ / : * ? " < > |
+```
+
+These characters can cause errors while downloading the file. These have been tried to be removed in the code but sometimes it still gives error.
+
+---
+
 ## 🛠️ Tech Stack
 
 **Frontend:** HTML, CSS, JS
