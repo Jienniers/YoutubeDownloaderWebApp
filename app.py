@@ -251,9 +251,7 @@ def home():
 
                 session["visibility"] = "visible"
 
-                session["videoLenght"] = (
-                    f"Video Length: {get_video_length(youtube)}"
-                )
+                session["videoLenght"] = f"Video Length: {get_video_length(youtube)}"
 
                 session["resolutions"] = get_video_resolutions(
                     session.get("stored_url")
