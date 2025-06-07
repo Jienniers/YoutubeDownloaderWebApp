@@ -221,7 +221,7 @@ def home():
     session["title"] = ""
     session["visibility"] = "hidden"
     session["resolutions"] = ""
-    session["videoLenght"] = ""
+    session["videoLength"] = ""
 
     if request.method == "POST":
         url_text = request.form["search_url"]
@@ -315,7 +315,7 @@ def home():
         un_visible=session.get("visibility"),
         res_visibility=session.get("visibility"),
         resolutions=session.get("resolutions"),
-        videoLenght=session.get("videoLenght"),
+        videoLength=session.get("videoLenght"),
     )
 
 
