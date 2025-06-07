@@ -96,11 +96,13 @@ def downloadVideo(url, selectedResolution):
         audioStreams = yt.streams.filter(only_audio=True).first()
 
         if videoStreams and audioStreams:
-
             print(f"Downloading: {yt.title}")
             print(f"Downloading {videoStreams.resolution} resolution...")
 
             newFileName = sanitize_filename(yt.title)
+
+            # Ensure Videos directory exists
+            os.makedirs("Videos", exist_ok=True)
 
             video_thread = threading.Thread(
                 target=lambda: videoStreams.download(
@@ -127,8 +129,10 @@ def downloadVideo(url, selectedResolution):
             audioPath = os.path.join("Videos", f"{newFileName}.mp3")
             outputPath = os.path.join("Videos", "Final " + newFileName + ".mp4")
 
-            video_clip = ffmpeg.input(videoPath)
+            # Ensure Videos directory exists before merging (redundant but safe)
+            os.makedirs("Videos", exist_ok=True)
 
+            video_clip = ffmpeg.input(videoPath)
             audio_clip = ffmpeg.input(audioPath)
 
             num_threads = os.cpu_count()
@@ -159,8 +163,10 @@ def downloadAudio(url):
         audioStreams = yt.streams.filter(only_audio=True).first()
 
         if audioStreams:
-
             newFileName = sanitize_filename(yt.title)
+
+            # Ensure Audios directory exists
+            os.makedirs("Audios", exist_ok=True)
 
             audioPath = audioStreams.download(
                 output_path="Audios/", filename=f"{newFileName}.m4a"
@@ -169,6 +175,9 @@ def downloadAudio(url):
             print("\nDone Downloading Audio")
 
             outputPath = os.path.join("Audios", f"{newFileName}.mp3")
+
+            # Ensure Audios directory exists before conversion (redundant but safe)
+            os.makedirs("Audios", exist_ok=True)
 
             ffmpeg.input(audioPath).output(outputPath, acodec="libmp3lame").run()
 
@@ -185,12 +194,14 @@ def downloadAudio(url):
 
 def deleteVideoFileAfterDelay(delay_seconds=5):
     time.sleep(delay_seconds)
-    shutil.rmtree("Videos")
+    if os.path.exists("Videos"):
+        shutil.rmtree("Videos")
 
 
 def deleteAudioFileAfterDelay(delay_seconds=5):
     time.sleep(delay_seconds)
-    shutil.rmtree("Audios")
+    if os.path.exists("Audios"):
+        shutil.rmtree("Audios")
 
 
 def get_video_resolutions(video_url):
