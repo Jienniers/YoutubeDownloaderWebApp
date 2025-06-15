@@ -18,16 +18,14 @@ def download_video_to_buffer(url, selected_resolution):
     try:
         yt = YouTube(url, on_progress_callback=on_progress)
 
-        video_stream = yt.streams.filter(
-            res=selected_resolution, progressive=False, file_extension="mp4"
-        ).first()
+        video_stream = yt.streams.filter(res=selected_resolution, progressive=False, file_extension="mp4").first()
         audio_stream = yt.streams.filter(only_audio=True, file_extension="mp4").first()
 
         if not video_stream or not audio_stream:
             print("Streams not found")
             return None
 
-        # Step 1: Save both streams to temporary files
+        # Step 1: Save both streams to temp files
         with tempfile.NamedTemporaryFile(suffix=".mp4", delete=False) as video_temp:
             video_temp_path = video_temp.name
             video_stream.stream_to_buffer(video_temp)
@@ -38,34 +36,39 @@ def download_video_to_buffer(url, selected_resolution):
             audio_stream.stream_to_buffer(audio_temp)
             audio_temp.flush()
 
-        # Step 2: Merge using ffmpeg-python into a new temp file
+        # Step 2: Mergeing video and audio streams using ffmpeg
         with tempfile.NamedTemporaryFile(suffix=".mp4", delete=False) as output_temp:
             output_temp_path = output_temp.name
 
-        (
-            ffmpeg.input(video_temp_path)
-            .output(
-                output_temp_path, **{"i": audio_temp_path}, c="copy", loglevel="quiet"
-            )
-            .run(overwrite_output=True)
-        )
+        video_input = ffmpeg.input(video_temp_path)
+        audio_input = ffmpeg.input(audio_temp_path)
 
-        # Step 3: Load result into memory buffer
+        ffmpeg.output(video_input, audio_input, output_temp_path, c='copy', loglevel='quiet') \
+            .run(overwrite_output=True)
+
+        # Step 3: Load merged file into buffer
         video_buffer = io.BytesIO()
         with open(output_temp_path, "rb") as f:
             video_buffer.write(f.read())
         video_buffer.seek(0)
 
-        # Step 4: Clean up all temp files
+        # Step 4: Clean up
         os.remove(video_temp_path)
         os.remove(audio_temp_path)
         os.remove(output_temp_path)
 
         return video_buffer
 
-    except Exception as e:
+    except ffmpeg.Error as e:
+        print("[FFmpeg STDERR]:", e.stderr.decode(errors="ignore") if e.stderr else "No stderr")
+        print("[FFmpeg STDOUT]:", e.stdout.decode(errors="ignore") if e.stdout else "No stdout")
         print(f"[ERROR] Video download/merge failed: {e}")
         return None
+
+    except Exception as e:
+        print(f"[ERROR] General failure: {e}")
+        return None
+
 
 
 def deleteVideoFileAfterDelay(delay_seconds=5):
