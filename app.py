@@ -15,6 +15,9 @@ from flask import (
     session,
 )
 import ffmpeg
+import io
+import subprocess
+import tempfile
 
 
 app = Flask(__name__)
@@ -154,50 +157,10 @@ def downloadVideo(url, selectedResolution):
         return None
 
 
-def downloadAudio(url):
-    try:
-        yt = YouTube(url, on_progress_callback=on_progress)
-
-        audioStreams = yt.streams.filter(only_audio=True).first()
-
-        if audioStreams:
-            newFileName = sanitize_filename(yt.title)
-
-            os.makedirs("Audios", exist_ok=True)
-
-            audioPath = audioStreams.download(
-                output_path="Audios/", filename=f"{newFileName}.m4a"
-            )
-
-            print("\nDone Downloading Audio")
-
-            outputPath = os.path.join("Audios", f"{newFileName}.mp3")
-
-            os.makedirs("Audios", exist_ok=True)
-
-            ffmpeg.input(audioPath).output(outputPath, acodec="libmp3lame").run()
-
-            os.remove(audioPath)
-
-            print(f"Audio converted and saved as {outputPath}")
-
-            return outputPath
-
-    except Exception as e:
-        print(f"Error: {e}")
-        return None
-
-
 def deleteVideoFileAfterDelay(delay_seconds=5):
     time.sleep(delay_seconds)
     if os.path.exists("Videos"):
         shutil.rmtree("Videos")
-
-
-def deleteAudioFileAfterDelay(delay_seconds=5):
-    time.sleep(delay_seconds)
-    if os.path.exists("Audios"):
-        shutil.rmtree("Audios")
 
 
 def get_video_resolutions(video_url):
@@ -220,6 +183,50 @@ def get_video_length(youtube: YouTube):
 
     formatted_length = f"{minutes:02}:{seconds:02}"
     return formatted_length
+
+
+def convert_audio_to_mp3(audio_stream):
+    # Step 1: Write audio to a temp .mp4 file
+    with tempfile.NamedTemporaryFile(suffix=".mp4", delete=False) as temp_input:
+        temp_input_path = temp_input.name
+        audio_stream.stream_to_buffer(temp_input)  # write to temp
+        temp_input.flush()
+
+    # Step 2: Create output path and convert using ffmpeg
+    temp_output_path = temp_input_path.replace(".mp4", ".mp3")
+    ffmpeg_path = r"C:\ffmpeg-master-latest-win64-gpl\bin\ffmpeg.exe"
+
+    # Step 3: Run ffmpeg now that the file is closed
+    subprocess.run(
+        [
+            ffmpeg_path,
+            "-y",
+            "-i",
+            temp_input_path,
+            "-vn",
+            "-ab",
+            "192k",
+            "-ar",
+            "44100",
+            "-f",
+            "mp3",
+            temp_output_path,
+        ],
+        stdout=subprocess.DEVNULL,
+        stderr=subprocess.DEVNULL,
+    )
+
+    # Step 4: Read the result into memory
+    mp3_buffer = io.BytesIO()
+    with open(temp_output_path, "rb") as f:
+        mp3_buffer.write(f.read())
+    mp3_buffer.seek(0)
+
+    # Step 5: Clean up files AFTER everything is done
+    os.remove(temp_input_path)
+    os.remove(temp_output_path)
+
+    return mp3_buffer
 
 
 @app.route("/", methods=["GET", "POST"])
@@ -290,28 +297,26 @@ def home():
                 return "Video File download failed, " "Please try any other video.", 404
 
         elif "download_audio_button_mine" in request.form:
-            print(session.get("stored_url"))
+            url = session.get("stored_url")
+            print(url)
 
-            audioPath = downloadAudio(session.get("stored_url"))
+            yt = YouTube(url)
 
-            if audioPath is None:
-                return "Please Try again! Error occured", 404
+            audio_stream = (
+                yt.streams.filter(only_audio=True, file_extension="mp4")
+                .order_by("abr")
+                .desc()
+                .first()
+            )
 
-            if os.path.exists(audioPath):
+            mp3_buffer = convert_audio_to_mp3(audio_stream)
 
-                @after_this_request
-                def remove_file(response):
-                    threading.Thread(target=deleteAudioFileAfterDelay).start()
-                    return response
-
-                return send_file(
-                    audioPath,
-                    as_attachment=True,
-                    download_name=os.path.basename(audioPath),
-                )
-
-            else:
-                return "Audio File download failed, " "Please try any other audio.", 404
+            return send_file(
+                mp3_buffer,
+                as_attachment=True,
+                download_name=f"{yt.title}.mp3",
+                mimetype="audio/mpeg",
+            )
 
     return render_template(
         "index.html",
