@@ -4,13 +4,7 @@ import shutil
 import secrets
 from pytubefix.cli import on_progress
 from pytubefix import YouTube
-from flask import (
-    Flask,
-    render_template,
-    request,
-    send_file,
-    session
-)
+from flask import Flask, render_template, request, send_file, session
 import ffmpeg
 import io
 import tempfile
@@ -24,7 +18,9 @@ def download_video_to_buffer(url, selected_resolution):
     try:
         yt = YouTube(url, on_progress_callback=on_progress)
 
-        video_stream = yt.streams.filter(res=selected_resolution, progressive=False, file_extension="mp4").first()
+        video_stream = yt.streams.filter(
+            res=selected_resolution, progressive=False, file_extension="mp4"
+        ).first()
         audio_stream = yt.streams.filter(only_audio=True, file_extension="mp4").first()
 
         if not video_stream or not audio_stream:
@@ -47,13 +43,9 @@ def download_video_to_buffer(url, selected_resolution):
             output_temp_path = output_temp.name
 
         (
-            ffmpeg
-            .input(video_temp_path)
+            ffmpeg.input(video_temp_path)
             .output(
-                output_temp_path,
-                **{'i': audio_temp_path},
-                c='copy',
-                loglevel='quiet'
+                output_temp_path, **{"i": audio_temp_path}, c="copy", loglevel="quiet"
             )
             .run(overwrite_output=True)
         )
@@ -74,7 +66,7 @@ def download_video_to_buffer(url, selected_resolution):
     except Exception as e:
         print(f"[ERROR] Video download/merge failed: {e}")
         return None
-    
+
 
 def deleteVideoFileAfterDelay(delay_seconds=5):
     time.sleep(delay_seconds)
@@ -118,9 +110,15 @@ def download_audio_to_buffer(audio_stream):
 
         # Step 3: Convert to MP3 using ffmpeg-python
         (
-            ffmpeg
-            .input(temp_input_path)
-            .output(temp_output_path, format='mp3', acodec='libmp3lame', audio_bitrate='192k', ar='44100', loglevel='quiet')
+            ffmpeg.input(temp_input_path)
+            .output(
+                temp_output_path,
+                format="mp3",
+                acodec="libmp3lame",
+                audio_bitrate="192k",
+                ar="44100",
+                loglevel="quiet",
+            )
             .run(overwrite_output=True)
         )
 
@@ -189,11 +187,10 @@ def home():
                     video_buffer,
                     as_attachment=True,
                     download_name=f"{yt.title}.mp4",
-                    mimetype="video/mp4"
+                    mimetype="video/mp4",
                 )
             else:
                 return "Error processing video", 500
-            
 
         elif "download_audio_button_mine" in request.form:
             url = session.get("stored_url")
