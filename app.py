@@ -175,47 +175,40 @@ def get_video_length(youtube: YouTube):
 
 
 def download_audio_to_buffer(audio_stream):
-    # Step 1: Write audio to a temp .mp4 file
-    with tempfile.NamedTemporaryFile(suffix=".mp4", delete=False) as temp_input:
-        temp_input_path = temp_input.name
-        audio_stream.stream_to_buffer(temp_input)  # write to temp
-        temp_input.flush()
+    try:
+        # Step 1: Write audio stream to a temp .mp4 file
+        with tempfile.NamedTemporaryFile(suffix=".mp4", delete=False) as temp_input:
+            temp_input_path = temp_input.name
+            audio_stream.stream_to_buffer(temp_input)
+            temp_input.flush()
 
-    # Step 2: Create output path and convert using ffmpeg
-    temp_output_path = temp_input_path.replace(".mp4", ".mp3")
-    ffmpeg_path = r"C:\ffmpeg-master-latest-win64-gpl\bin\ffmpeg.exe"
+        # Step 2: Create temp output path for .mp3
+        with tempfile.NamedTemporaryFile(suffix=".mp3", delete=False) as temp_output:
+            temp_output_path = temp_output.name
 
-    # Step 3: Run ffmpeg now that the file is closed
-    subprocess.run(
-        [
-            ffmpeg_path,
-            "-y",
-            "-i",
-            temp_input_path,
-            "-vn",
-            "-ab",
-            "192k",
-            "-ar",
-            "44100",
-            "-f",
-            "mp3",
-            temp_output_path,
-        ],
-        stdout=subprocess.DEVNULL,
-        stderr=subprocess.DEVNULL,
-    )
+        # Step 3: Convert to MP3 using ffmpeg-python
+        (
+            ffmpeg
+            .input(temp_input_path)
+            .output(temp_output_path, format='mp3', acodec='libmp3lame', audio_bitrate='192k', ar='44100', loglevel='quiet')
+            .run(overwrite_output=True)
+        )
 
-    # Step 4: Read the result into memory
-    mp3_buffer = io.BytesIO()
-    with open(temp_output_path, "rb") as f:
-        mp3_buffer.write(f.read())
-    mp3_buffer.seek(0)
+        # Step 4: Load converted audio into memory buffer
+        mp3_buffer = io.BytesIO()
+        with open(temp_output_path, "rb") as f:
+            mp3_buffer.write(f.read())
+        mp3_buffer.seek(0)
 
-    # Step 5: Clean up files AFTER everything is done
-    os.remove(temp_input_path)
-    os.remove(temp_output_path)
+        # Step 5: Cleanup temp files
+        os.remove(temp_input_path)
+        os.remove(temp_output_path)
 
-    return mp3_buffer
+        return mp3_buffer
+
+    except Exception as e:
+        print(f"[ERROR] Audio conversion failed: {e}")
+        return None
 
 
 @app.route("/", methods=["GET", "POST"])
