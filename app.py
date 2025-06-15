@@ -13,6 +13,7 @@ import re
 app = Flask(__name__)
 app.secret_key = secrets.token_hex(16)
 
+
 def remove_emojis(text):
     return re.sub(r"[\U00010000-\U0010ffff]", "", text)
 
@@ -22,7 +23,9 @@ def download_video_to_buffer(url, selected_resolution):
     try:
         yt = YouTube(url, on_progress_callback=on_progress)
 
-        video_stream = yt.streams.filter(res=selected_resolution, progressive=False, file_extension="mp4").first()
+        video_stream = yt.streams.filter(
+            res=selected_resolution, progressive=False, file_extension="mp4"
+        ).first()
         audio_stream = yt.streams.filter(only_audio=True, file_extension="mp4").first()
 
         if not video_stream or not audio_stream:
@@ -47,8 +50,9 @@ def download_video_to_buffer(url, selected_resolution):
         video_input = ffmpeg.input(video_temp_path)
         audio_input = ffmpeg.input(audio_temp_path)
 
-        ffmpeg.output(video_input, audio_input, output_temp_path, c='copy', loglevel='quiet') \
-            .run(overwrite_output=True)
+        ffmpeg.output(
+            video_input, audio_input, output_temp_path, c="copy", loglevel="quiet"
+        ).run(overwrite_output=True)
 
         # Step 3: Load merged file into buffer
         video_buffer = io.BytesIO()
@@ -64,15 +68,20 @@ def download_video_to_buffer(url, selected_resolution):
         return video_buffer
 
     except ffmpeg.Error as e:
-        print("[FFmpeg STDERR]:", e.stderr.decode(errors="ignore") if e.stderr else "No stderr")
-        print("[FFmpeg STDOUT]:", e.stdout.decode(errors="ignore") if e.stdout else "No stdout")
+        print(
+            "[FFmpeg STDERR]:",
+            e.stderr.decode(errors="ignore") if e.stderr else "No stderr",
+        )
+        print(
+            "[FFmpeg STDOUT]:",
+            e.stdout.decode(errors="ignore") if e.stdout else "No stdout",
+        )
         print(f"[ERROR] Video download/merge failed: {e}")
         return None
 
     except Exception as e:
         print(f"[ERROR] General failure: {e}")
         return None
-
 
 
 def deleteVideoFileAfterDelay(delay_seconds=5):
