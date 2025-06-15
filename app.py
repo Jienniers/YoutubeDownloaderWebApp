@@ -8,13 +8,17 @@ from flask import Flask, render_template, request, send_file, session
 import ffmpeg
 import io
 import tempfile
-
+import re
 
 app = Flask(__name__)
 app.secret_key = secrets.token_hex(16)
 
+def remove_emojis(text):
+    return re.sub(r"[\U00010000-\U0010ffff]", "", text)
+
 
 def download_video_to_buffer(url, selected_resolution):
+    url = remove_emojis(url).strip()
     try:
         yt = YouTube(url, on_progress_callback=on_progress)
 
