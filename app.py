@@ -16,7 +16,6 @@ from flask import (
 )
 import ffmpeg
 import io
-import subprocess
 import tempfile
 
 
@@ -104,37 +103,38 @@ def download_video_to_buffer(url, selected_resolution):
 
         # Step 1: Save both streams to temporary files
         with tempfile.NamedTemporaryFile(suffix=".mp4", delete=False) as video_temp:
-            video_stream.stream_to_buffer(video_temp)
             video_temp_path = video_temp.name
+            video_stream.stream_to_buffer(video_temp)
+            video_temp.flush()
 
         with tempfile.NamedTemporaryFile(suffix=".mp4", delete=False) as audio_temp:
-            audio_stream.stream_to_buffer(audio_temp)
             audio_temp_path = audio_temp.name
+            audio_stream.stream_to_buffer(audio_temp)
+            audio_temp.flush()
 
-        # Step 2: Merge audio + video using ffmpeg to another temp file
+        # Step 2: Merge using ffmpeg-python into a new temp file
         with tempfile.NamedTemporaryFile(suffix=".mp4", delete=False) as output_temp:
             output_temp_path = output_temp.name
 
-        ffmpeg_path = r"C:\ffmpeg-master-latest-win64-gpl\bin\ffmpeg.exe"
+        (
+            ffmpeg
+            .input(video_temp_path)
+            .output(
+                output_temp_path,
+                **{'i': audio_temp_path},
+                c='copy',
+                loglevel='quiet'
+            )
+            .run(overwrite_output=True)
+        )
 
-        subprocess.run([
-            ffmpeg_path,
-            "-y",
-            "-i", video_temp_path,
-            "-i", audio_temp_path,
-            "-c:v", "copy",
-            "-c:a", "aac",
-            "-strict", "experimental",
-            output_temp_path
-        ], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-
-        # Step 3: Load merged file into memory
+        # Step 3: Load result into memory buffer
         video_buffer = io.BytesIO()
         with open(output_temp_path, "rb") as f:
             video_buffer.write(f.read())
         video_buffer.seek(0)
 
-        # Step 4: Clean up temp files
+        # Step 4: Clean up all temp files
         os.remove(video_temp_path)
         os.remove(audio_temp_path)
         os.remove(output_temp_path)
@@ -142,9 +142,9 @@ def download_video_to_buffer(url, selected_resolution):
         return video_buffer
 
     except Exception as e:
-        print(f"Error: {e}")
+        print(f"[ERROR] Video download/merge failed: {e}")
         return None
-
+    
 
 def deleteVideoFileAfterDelay(delay_seconds=5):
     time.sleep(delay_seconds)
