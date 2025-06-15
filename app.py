@@ -1,8 +1,6 @@
 import os
-import threading
 import time
 import shutil
-import re
 import secrets
 from pytubefix.cli import on_progress
 from pytubefix import YouTube
@@ -11,8 +9,7 @@ from flask import (
     render_template,
     request,
     send_file,
-    after_this_request,
-    session,
+    session
 )
 import ffmpeg
 import io
