@@ -91,67 +91,56 @@ def sanitize_filename(filename):
     return sanitized_filename
 
 
-def downloadVideo(url, selectedResolution):
+def download_video_to_buffer(url, selected_resolution):
     try:
         yt = YouTube(url, on_progress_callback=on_progress)
 
-        videoStreams = yt.streams.filter(res=selectedResolution).first()
-        audioStreams = yt.streams.filter(only_audio=True).first()
+        video_stream = yt.streams.filter(res=selected_resolution, progressive=False, file_extension="mp4").first()
+        audio_stream = yt.streams.filter(only_audio=True, file_extension="mp4").first()
 
-        if videoStreams and audioStreams:
-            print(f"Downloading: {yt.title}")
-            print(f"Downloading {videoStreams.resolution} resolution...")
-
-            newFileName = sanitize_filename(yt.title)
-
-            os.makedirs("Videos", exist_ok=True)
-
-            video_thread = threading.Thread(
-                target=lambda: videoStreams.download(
-                    "Videos/",
-                    filename=f"{newFileName}.mp4",
-                )
-            )
-
-            audio_thread = threading.Thread(
-                target=lambda: audioStreams.download(
-                    "Videos/", filename=f"{newFileName}.mp3"
-                )
-            )
-
-            video_thread.start()
-            audio_thread.start()
-
-            video_thread.join()
-            audio_thread.join()
-
-            print("\nDone Downloading Video")
-
-            videoPath = os.path.join("Videos", f"{newFileName}.mp4")
-            audioPath = os.path.join("Videos", f"{newFileName}.mp3")
-            outputPath = os.path.join("Videos", "Final " + newFileName + ".mp4")
-
-            os.makedirs("Videos", exist_ok=True)
-
-            video_clip = ffmpeg.input(videoPath)
-            audio_clip = ffmpeg.input(audioPath)
-
-            num_threads = os.cpu_count()
-
-            ffmpeg.concat(video_clip, audio_clip, v=1, a=1).output(
-                outputPath, threads=num_threads
-            ).run(overwrite_output=True)
-
-            print("Merging complete!")
-
-            print(f"Orignal VideoPath: {videoPath}")
-            print(f"Orignal AudioPath: {audioPath}")
-            print(f"Orignal OutputPath: {outputPath}")
-
-            return outputPath
-        else:
-            print("No streams available for the video.")
+        if not video_stream or not audio_stream:
+            print("Streams not found")
             return None
+
+        # Step 1: Save both streams to temporary files
+        with tempfile.NamedTemporaryFile(suffix=".mp4", delete=False) as video_temp:
+            video_stream.stream_to_buffer(video_temp)
+            video_temp_path = video_temp.name
+
+        with tempfile.NamedTemporaryFile(suffix=".mp4", delete=False) as audio_temp:
+            audio_stream.stream_to_buffer(audio_temp)
+            audio_temp_path = audio_temp.name
+
+        # Step 2: Merge audio + video using ffmpeg to another temp file
+        with tempfile.NamedTemporaryFile(suffix=".mp4", delete=False) as output_temp:
+            output_temp_path = output_temp.name
+
+        ffmpeg_path = r"C:\ffmpeg-master-latest-win64-gpl\bin\ffmpeg.exe"
+
+        subprocess.run([
+            ffmpeg_path,
+            "-y",
+            "-i", video_temp_path,
+            "-i", audio_temp_path,
+            "-c:v", "copy",
+            "-c:a", "aac",
+            "-strict", "experimental",
+            output_temp_path
+        ], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+
+        # Step 3: Load merged file into memory
+        video_buffer = io.BytesIO()
+        with open(output_temp_path, "rb") as f:
+            video_buffer.write(f.read())
+        video_buffer.seek(0)
+
+        # Step 4: Clean up temp files
+        os.remove(video_temp_path)
+        os.remove(audio_temp_path)
+        os.remove(output_temp_path)
+
+        return video_buffer
+
     except Exception as e:
         print(f"Error: {e}")
         return None
@@ -185,7 +174,7 @@ def get_video_length(youtube: YouTube):
     return formatted_length
 
 
-def convert_audio_to_mp3(audio_stream):
+def download_audio_to_buffer(audio_stream):
     # Step 1: Write audio to a temp .mp4 file
     with tempfile.NamedTemporaryFile(suffix=".mp4", delete=False) as temp_input:
         temp_input_path = temp_input.name
@@ -263,38 +252,25 @@ def home():
                 print("Available resolutions:", session.get("resolutions"))
 
         elif "download_button_mine" in request.form:
-            print(session.get("stored_url"))
+            url = session.get("stored_url")
+
+            print(url)
 
             selectedResolution = request.form["resolutions"]
 
-            videoPath = downloadVideo(session.get("stored_url"), selectedResolution)
+            video_buffer = download_video_to_buffer(url, selectedResolution)
 
-            if videoPath is None:
-                return "Please Try again! Error occured", 404
-
-            newVideoPath = videoPath.replace("Final ", "")
-
-            if os.path.exists(videoPath):
-                os.replace(videoPath, newVideoPath)
-                print(f"File renamed to: {newVideoPath}")
-
-            else:
-                print(f"Error: The file at {videoPath} does not exist.")
-
-            if newVideoPath:
-
-                @after_this_request
-                def remove_file(response):
-                    threading.Thread(target=deleteVideoFileAfterDelay).start()
-                    return response
-
+            if video_buffer:
+                yt = YouTube(url)
                 return send_file(
-                    newVideoPath,
+                    video_buffer,
                     as_attachment=True,
-                    download_name=os.path.basename(newVideoPath),
+                    download_name=f"{yt.title}.mp4",
+                    mimetype="video/mp4"
                 )
             else:
-                return "Video File download failed, " "Please try any other video.", 404
+                return "Error processing video", 500
+            
 
         elif "download_audio_button_mine" in request.form:
             url = session.get("stored_url")
@@ -309,7 +285,7 @@ def home():
                 .first()
             )
 
-            mp3_buffer = convert_audio_to_mp3(audio_stream)
+            mp3_buffer = download_audio_to_buffer(audio_stream)
 
             return send_file(
                 mp3_buffer,
