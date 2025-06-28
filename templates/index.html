@@ -34,7 +34,7 @@
         </div>
 
         <!-- Video title -->
-        <h2 class="text-xl font-semibold text-gray-800">{{ title }}</h2>
+        <h2 class="text-xl font-semibold text-gray-800 text-center">{{ title }}</h2>
 
         <!-- Thumbnail + action buttons -->
         <div class="flex flex-col sm:flex-row sm:items-start gap-6">
@@ -45,7 +45,7 @@
 
             <div class="flex flex-col gap-4 w-full sm:ml-4">
                 <!-- Download Audio -->
-                <button type="submit" name="download_audio_button_mine"
+                <button type="submit" name="download_audio_button_mine" id="audio_download_btn"
                     class="w-full rounded-lg bg-emerald-600 px-8 py-3 text-white hover:bg-emerald-700 text-base"
                     style="visibility: {{ un_visible }};">
                     Download Audio
@@ -53,7 +53,7 @@
 
                 <!-- Download Video + Resolutions -->
                 <div class="flex flex-col sm:flex-row justify-between gap-4 w-full">
-                    <button type="submit" name="download_button_mine"
+                    <button type="submit" name="download_button_mine" id="video_download_btn"
                         class="w-full sm:w-1/2 rounded-lg bg-blue-600 px-6 py-3 text-white hover:bg-blue-700 text-base"
                         style="visibility: {{ un_visible }};">
                         Download Video
