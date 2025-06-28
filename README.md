@@ -79,6 +79,14 @@ python app.py
 
 ---
 
+## 🚧 Upcoming Features
+
+* ⌛ **Download Progress Bar**: Show real-time download progress with a visual indicator
+* 🚀 **Docker Support**: Dockerized setup for easier deployment and environment control
+* ☼️ / ☾ **Dark/Light Mode Toggle**: Option to switch between light and dark themes
+
+---
+
 ## 🤝 Contributing
 
 We welcome contributions to help improve this project! Whether you're fixing bugs, improving documentation, or suggesting new features, your efforts are appreciated.
