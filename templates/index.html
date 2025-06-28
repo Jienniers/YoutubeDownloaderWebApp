@@ -1,37 +1,78 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Youtube Downloader</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-    <link rel="stylesheet" href="/static/style.css">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>YouTube Downloader</title>
+    <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body>
-    <div class="title_div">
-        <h1 class="_title">
-            Download Your Favourite Youtube Video
+
+<body class="bg-gray-100 min-h-screen flex flex-col items-center justify-center py-12 px-4">
+    <!-- Title -->
+    <header class="mb-10 text-center">
+        <h1 class="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-blue-700">
+            Download Your Favourite YouTube Video
         </h1>
-    </div>
-    <form action="{{ url_for('home') }}" method="post" class="bubble-box">
+    </header>
 
-    <h1 class="bubble-box-title">Enter URL:</h1>
+    <!-- Main Form -->
+    <form action="{{ url_for('home') }}" method="post"
+        class="w-full max-w-6xl bg-white rounded-2xl shadow-2xl py-[40px] px-6 sm:px-16 space-y-10 min-h-[700px]">
 
-    <input type="text" id="url_link" name="search_url" placeholder="Enter the link of the video">
+        <!-- URL input + Search button -->
+        <div>
+            <label for="url_link" class="block font-semibold text-gray-700 mb-3 text-lg">Enter URL:</label>
+            <div class="flex flex-col sm:flex-row gap-4">
+                <input type="text" id="url_link" name="search_url" placeholder="Enter the link of the video"
+                    class="flex-1 rounded-lg border border-gray-300 p-4 text-base focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                <button name="search" value="Search" id="in-between"
+                    class="rounded-lg bg-blue-600 px-6 py-3 font-medium text-white hover:bg-blue-700 text-base">
+                    Search
+                </button>
+            </div>
+        </div>
 
-    <button name="search" value="Search" id="in-between" class="search_btn">Search</button>
+        <!-- Video title -->
+        <h2 class="text-xl font-semibold text-gray-800">{{ title }}</h2>
 
-    <h2 class="title_text"> {{ title }}</h2>
+        <!-- Thumbnail + action buttons -->
+        <div class="flex flex-col sm:flex-row sm:items-start gap-6">
+            {% if thumbnail %}
+            <img src="{{ thumbnail }}" alt="Video Thumbnail"
+                class="w-full sm:w-96 lg:w-[500px] h-auto rounded-xl shadow-lg" />
+            {% endif %}
+            <div class="flex flex-col gap-4">
+                <button type="submit" name="download_audio_button_mine"
+                    class="rounded-lg bg-emerald-600 px-6 py-3 text-white hover:bg-emerald-700 text-base"
+                    style="visibility: {{ un_visible }};">
+                    Download Audio
+                </button>
 
-    <div style="display: inline-block;" class="inline_items_div">
-        <img src="{{ thumbnail }}" class="img-fluid _thumbnail" alt="Displayed Image" style="visibility: {{un_visible}};">
-        <button type="submit" name="download_audio_button_mine" class="audio_download_btn" style="visibility: {{un_visible}};" id="audio_download_btn_func">Download Audio</button>
-        <button type="submit" name="download_button_mine" class="download_button" style="visibility: {{un_visible}};" id="video_download_btn_func">Download</button>
-        <select name="resolutions" id="resolutions" style="visibility: {{un_visible}};" > {% for res in resolutions %} <option value="{{ res }}" style="background-color: black;">{{ res }}</option> {% endfor %} </select>
-    </div>
-    <h1 class="videoLength" style="visibility: {{un_visible}};">{{ videoLength }}</h1>
+                <div class="flex flex-col sm:flex-row gap-4">
+                    <button type="submit" name="download_button_mine"
+                        class="rounded-lg bg-blue-600 px-6 py-3 text-white hover:bg-blue-700 text-base"
+                        style="visibility: {{ un_visible }};">
+                        Download Video
+                    </button>
+
+                    <select name="resolutions" id="resolutions" class="rounded-lg border border-gray-300 p-3 text-base"
+                        style="visibility: {{ un_visible }};">
+                        {% for res in resolutions %}
+                        <option value="{{ res }}">{{ res }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <!-- Video length -->
+        <p class="text-gray-700 font-medium text-lg" style="visibility: {{ un_visible }};">
+            {{ videoLength }}
+        </p>
+    </form>
 
     <script src="{{ url_for('static', filename='js/app.js') }}"></script>
-
 </body>
+
 </html>

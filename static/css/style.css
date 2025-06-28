@@ -1,0 +1,247 @@
+@import url('https://fonts.googleapis.com/css2?family=Roboto&display=swap');
+*{
+  box-sizing: 0;
+  padding: 0;
+  margin: 0;   
+}
+body {
+  margin: 0;
+  padding: 0;
+  background: linear-gradient(0deg, #15131d 0%, #342f48 100%);
+  background-size: 100% 130%;
+}
+
+.title_div ._title {
+  font-family: 'Roboto', sans-serif;
+  color: white;
+  text-align: center;
+  font-size: 50px;
+}
+
+.title_div {
+  margin-top: 40px;
+  z-index: 1; /* Ensures that the title is always on top */
+  margin-bottom: 50px;
+}
+
+.bubble-box {
+  position: relative; /* Changed from absolute to relative */
+  top: 0;
+  left: 0;
+  margin: 0 auto;
+  width: 70%;
+  height: 700px;
+  padding: 20px;
+  background-color: #312e3f;
+  border-radius: 20px;
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.2); /* Add a subtle box shadow */
+  color: #fff;
+  text-align: left;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start; /* Align items to the start (top) */
+  z-index: 0; /* Ensures that the bubble box is behind the title */
+
+  -webkit-box-shadow: -9px 8px 135px 8px rgba(0,0,0,0.75);
+  -moz-box-shadow: -9px 8px 135px 8px rgba(0,0,0,0.75);
+  box-shadow: -9px 8px 135px 8px rgba(0,0,0,0.75);
+}
+
+.bubble-box h1 {
+  font-family: 'Roboto', sans-serif;
+  color: white;
+  margin: 0; /* Remove default margin for the h1 element */
+  margin-bottom: 10px;
+}
+
+/* Triangle or arrow pointing to the top */
+.bubble-box::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 50%;
+  margin-left: -10px; /* Half of the triangle's width */
+  border-width: 10px;
+  border-style: solid;
+  border-color: #3498db transparent transparent transparent;
+}
+
+.bubble-box input {
+  border: none;
+  border-radius: 10px;
+  height: 40px;
+  padding-right: 20px;
+  font-size: 20px;
+  font-family: 'Roboto', sans-serif;
+  margin: 0 auto; /* Set margin to 0 top/bottom and auto left/right to center */
+  width: 80%;
+}
+
+input[type="text"],
+.bubble-box input{
+  outline: none;
+  border: 1px solid #ccc; /* Add your custom border style if needed */
+  height: 6%;
+}
+
+.bubble-box button {
+  border: none;
+  border-radius: 10px;
+  height: 40px;
+  padding: 10px 20px;
+  font-size: 20px;
+  font-family: 'Roboto', sans-serif;
+  cursor: pointer;
+  background: linear-gradient(to right, #00796b, #0066cc); /* Lightened dark green to blue gradient */
+  color: #fff;
+  transition: background 0.5s ease, color 0.5s ease, transform 0.5s ease;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.bubble-box button:hover {
+  background: linear-gradient(to right, #33b2a6, #4da6ff); /* Lightened hover gradient */
+  color: #fff;
+  transform: scale(1.05);
+  box-shadow: 0 8px 12px rgba(0, 0, 0, 0.2);
+}
+
+.bubble-box .search_btn{
+  margin-top: 5%;
+  align-self: center;
+}
+
+.bubble-box .title_text{
+  font-size: small;
+  margin-top: 30px; 
+  font-size: x-large; 
+  align-self: center;
+  font-family: 'Roboto', sans-serif;
+  margin-bottom: 20px;
+}
+
+.bubble-box .audio_download_btn{
+  margin-left: 10px;
+  float: right;
+}
+
+.bubble-box .download_button{
+  margin-right: 70px;
+  float: right;
+}
+
+.bubble-box select{
+  padding: 10px;
+  font-size: 20px;
+  border-radius: 10px;
+  background: linear-gradient(to right, #00796b, #0066cc);
+  color: white;
+}
+
+.bubble-box select option {
+  padding: 10px;
+  background-color: #f9f9f9;
+  color: white;
+}
+
+select:hover {
+  border-color: #3e8e41;
+}
+
+#resolutions{
+  margin-top: 50px;
+  margin-left: 75px;
+}
+
+.bubble-box ._thumbnail {
+  border-radius: 20px; 
+  width: 50%; 
+  height: auto; 
+  float: left;
+}
+
+.bubble-box .file_lenght{
+  margin-top: 30px;
+  margin-left: 10px;
+}
+
+#url_link{
+  height: 7%;
+}
+
+.inline_items_div{
+  margin-top: 50px;
+}
+
+@media (max-width: 768px) {
+  .title_div{
+    margin-top: 50px;
+  }
+
+  .title_div ._title{
+    font-size: 30px;
+  }
+
+  .bubble-box {
+    width: 90%;
+    height: 820px;
+  }
+
+  .bubble-box ._thumbnail {
+    width: 100%;
+}
+
+  .inline_items_div {
+    align-items: stretch;
+  }
+
+  .search_btn, .audio_download_btn, .download_button{
+      width: 100%;
+  }
+
+  .audio_download_btn{
+    margin-left: 0px;
+  }
+
+  .bubble-box .download_button{
+    margin-right: 0px;
+  }
+
+  #resolutions {
+    width: 100%;
+    max-width: 350px;
+    margin-left: 0%;
+  }
+
+  .bubble-box .file_lenght{
+    align-self: center;
+  }
+  #url_link{
+    height: 5%;
+  }
+}
+
+@media (max-width: 480px) {
+  .bubble-box-title, .title_text {
+      font-size: 1.2rem;
+  }
+
+  .input-field {
+      font-size: 0.9rem;
+  }
+
+  .bubble-box ._thumbnail {
+    width: 100%;
+    max-width: 600px;
+    height: auto;
+    margin-bottom: 20px;
+}
+
+  .search_btn, .audio_download_btn, .download_button {
+      font-size: 0.9rem;
+      margin-top: 30px;
+  }
+
+  select {
+      font-size: 0.9rem;
+  }
+}
