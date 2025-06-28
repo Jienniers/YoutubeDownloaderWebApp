@@ -42,21 +42,25 @@
             <img src="{{ thumbnail }}" alt="Video Thumbnail"
                 class="w-full sm:w-96 lg:w-[500px] h-auto rounded-xl shadow-lg" />
             {% endif %}
-            <div class="flex flex-col gap-4">
+
+            <div class="flex flex-col gap-4 w-full sm:ml-4">
+                <!-- Download Audio -->
                 <button type="submit" name="download_audio_button_mine"
-                    class="rounded-lg bg-emerald-600 px-6 py-3 text-white hover:bg-emerald-700 text-base"
+                    class="w-full rounded-lg bg-emerald-600 px-8 py-3 text-white hover:bg-emerald-700 text-base"
                     style="visibility: {{ un_visible }};">
                     Download Audio
                 </button>
 
-                <div class="flex flex-col sm:flex-row gap-4">
+                <!-- Download Video + Resolutions -->
+                <div class="flex flex-col sm:flex-row justify-between gap-4 w-full">
                     <button type="submit" name="download_button_mine"
-                        class="rounded-lg bg-blue-600 px-6 py-3 text-white hover:bg-blue-700 text-base"
+                        class="w-full sm:w-1/2 rounded-lg bg-blue-600 px-6 py-3 text-white hover:bg-blue-700 text-base"
                         style="visibility: {{ un_visible }};">
                         Download Video
                     </button>
 
-                    <select name="resolutions" id="resolutions" class="rounded-lg border border-gray-300 p-3 text-base"
+                    <select name="resolutions" id="resolutions"
+                        class="w-full sm:w-1/2 rounded-lg border border-gray-300 p-3 text-base"
                         style="visibility: {{ un_visible }};">
                         {% for res in resolutions %}
                         <option value="{{ res }}">{{ res }}</option>
@@ -64,7 +68,12 @@
                     </select>
                 </div>
             </div>
+
+
+
         </div>
+        </div>
+
 
         <!-- Video length -->
         <p class="text-gray-700 font-medium text-lg" style="visibility: {{ un_visible }};">
