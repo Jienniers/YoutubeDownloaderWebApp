@@ -72,11 +72,9 @@ python app.py
 
 ![App Screenshot](https://github.com/Jienniers/YoutubeDownloaderWebApp/blob/main/screenshots/Screenshot1.png)
 
-![App Screenshot](https://github.com/Jienniers/YoutubeDownloaderWebApp/blob/main/screenshots/Screenshot2.png)
-
 #### 📱 Mobile Screenshots
 
-![App Screenshot](https://github.com/Jienniers/YoutubeDownloaderWebApp/blob/main/screenshots/mobileScreenshot.png)
+![App Screenshot](https://github.com/Jienniers/YoutubeDownloaderWebApp/blob/main/screenshots/mobileScreenshot.jpeg)
 
 ---
 
