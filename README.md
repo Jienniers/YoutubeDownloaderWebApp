@@ -60,7 +60,7 @@ python app.py
 
 ## 🛠️ Tech Stack
 
-**Frontend:** HTML, CSS, JS
+**Frontend:** HTML, Tailwind CSS, JS
 
 **Backend:** Flask
 
