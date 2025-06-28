@@ -69,18 +69,17 @@
                 </div>
             </div>
 
-
-
         </div>
         </div>
-
 
         <!-- Video length -->
-        <p class="text-gray-700 font-medium text-lg" style="visibility: {{ un_visible }};">
-            {{ videoLength }}
-        </p>
+        <div class="mt-6 bg-gray-100 rounded-lg px-6 py-4 text-center shadow-sm border border-gray-200"
+            style="visibility: {{ un_visible }};">
+            <p class="text-lg font-semibold text-gray-800">
+                <span class="text-blue-700">{{ videoLength }}</span>
+            </p>
+        </div>
     </form>
-
     <script src="{{ url_for('static', filename='js/app.js') }}"></script>
 </body>
 
