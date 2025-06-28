@@ -74,7 +74,8 @@ python app.py
 
 #### 📱 Mobile Screenshots
 
-![App Screenshot](https://github.com/Jienniers/YoutubeDownloaderWebApp/blob/main/screenshots/mobileScreenshot.jpeg)
+<img src="https://github.com/Jienniers/YoutubeDownloaderWebApp/blob/main/screenshots/mobileScreenshot.jpeg?raw=true" width="300" />
+
 
 ---
 
