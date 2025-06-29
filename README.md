@@ -111,14 +111,6 @@ http://localhost:5000/
 
 <img src="https://github.com/Jienniers/YoutubeDownloaderWebApp/blob/main/screenshots/mobileScreenshot.jpeg?raw=true" width="300" />
 
-
----
-
-## 🚧 Upcoming Features
-
-* ⌛ **Download Progress Bar**: Show real-time download progress with a visual indicator
-* ☼️ / ☾ **Dark/Light Mode Toggle**: Option to switch between light and dark themes
-
 ---
 
 ## 🤝 Contributing
