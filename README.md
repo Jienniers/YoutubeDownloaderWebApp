@@ -22,7 +22,7 @@ A simple and user-friendly web application that allows you to download YouTube v
 
 ## 🖥️ Compatibility Note
 
-This guide is specific to **Windows** systems. Compatibility with other operating systems has not been tested.
+This guide is written specifically for **Windows** systems. Compatibility with other operating systems has not been tested directly. However, you can run this script on any OS using Docker — refer to the Docker section in this README for instructions.
 
 ---
 
