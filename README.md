@@ -28,33 +28,68 @@ This guide is specific to **Windows** systems. Compatibility with other operatin
 
 ## ⚙️ Installation
 
-### Prerequisites
+### Prerequisites (Manual Setup)
 
 * Python (Install from [python.org](https://www.python.org/downloads/))
 * FFmpeg (Install from [ffmpeg.org](https://ffmpeg.org/download.html) and add it to your system's environment variables)
 
 ### Dependencies
 
-Install all the required modules by the following command:
+Install all the required Python packages using pip:
 
 ```bash
 pip install flask pytubefix ffmpeg-python
 ```
 
-### Running the App
+### Running the App (Manual)
 
-1. Open Command Prompt in the directory containing the project files.
-2. Run the following command:
+1. Open Command Prompt or Terminal in the project directory.
+2. Run the Flask app:
 
 ```bash
 python app.py
 ```
 
-3. Open your web browser and navigate to: `http://localhost:5000/`
+3. Open your web browser and go to: `http://localhost:5000/`
 
-### Notes
+---
 
-* JavaScript must be enabled in your browser to receive download start alerts. Make sure to click "OK" to confirm the download.
+### 📅 Docker Setup (Alternative Method)
+
+If you prefer using Docker, you can containerize and run the app easily.
+
+#### Step 1: Build the Docker Image
+
+From the root directory containing the `Dockerfile`, run:
+
+```bash
+docker build -t youtube-downloader .
+```
+
+#### Step 2: Run the Docker Container
+
+```bash
+docker run -d -p 5000:5000 youtube-downloader
+```
+
+Then open your browser and navigate to:
+
+```
+http://localhost:5000/
+```
+
+#### 📊 Docker Benefits
+
+* Isolated environment, no need to install Python or FFmpeg manually
+* Consistent builds across different machines
+
+> Make sure Docker is installed and running on your machine. You can download it from [docker.com](https://www.docker.com/).
+
+---
+
+## Notes
+
+* JavaScript must be enabled in your browser to receive download confirmation alerts.
 
 ---
 
@@ -82,7 +117,6 @@ python app.py
 ## 🚧 Upcoming Features
 
 * ⌛ **Download Progress Bar**: Show real-time download progress with a visual indicator
-* 🚀 **Docker Support**: Dockerized setup for easier deployment and environment control
 * ☼️ / ☾ **Dark/Light Mode Toggle**: Option to switch between light and dark themes
 
 ---
