@@ -109,7 +109,7 @@ http://localhost:5000/
 
 #### 📱 Mobile Screenshots
 
-<img src="https://github.com/Jienniers/YoutubeDownloaderWebApp/blob/main/screenshots/mobileScreenshot.jpeg?raw=true" width="300" />
+<img src="https://github.com/Jienniers/YoutubeDownloaderWebApp/blob/main/screenshots/mobileScreenshot.png?raw=true" width="300" />
 
 ---
 
