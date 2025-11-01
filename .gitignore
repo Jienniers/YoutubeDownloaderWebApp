@@ -2,3 +2,4 @@ tests
 Audios/*
 Videos/*
 __pycache__
+venv/

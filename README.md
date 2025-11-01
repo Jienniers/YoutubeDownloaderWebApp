@@ -33,15 +33,40 @@ This guide is written specifically for **Windows** systems. Compatibility with o
 * Python (Install from [python.org](https://www.python.org/downloads/))
 * FFmpeg (Install from [ffmpeg.org](https://ffmpeg.org/download.html) and add it to your system's environment variables)
 
-### Dependencies
+### 🧱 Create a Virtual Environment
 
-Install all the required Python packages using pip:
+Create a Python virtual environment inside your project folder:
 
 ```bash
-pip install flask pytubefix ffmpeg-python
+python -m venv venv
 ```
 
-### Running the App (Manual)
+#### Activate it:
+
+**Windows (PowerShell):**
+
+```powershell
+venv\Scripts\Activate
+```
+
+**macOS/Linux:**
+
+```bash
+source venv/bin/activate
+```
+
+You’ll know it’s active when your terminal prompt starts with `(venv)`.
+
+
+### 📦 Install Dependencies
+
+Once the virtual environment is active, install all required packages:
+
+```bash
+pip install -r requirements.txt
+```
+
+### 🚀 Running the App (Manual)
 
 1. Open Command Prompt or Terminal in the project directory.
 2. Run the Flask app:
