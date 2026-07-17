@@ -21,3 +21,24 @@ audioDownloadButton.addEventListener("click", function () {
       "⏳ It may take a moment depending on the audio quality and length. Your download will start automatically once it's ready.",
   );
 });
+
+const themeToggle = document.getElementById("theme-toggle");
+const savedTheme = localStorage.getItem("theme");
+
+// Initialize theme
+if (
+  savedTheme === "dark" ||
+  (!savedTheme && window.matchMedia("(prefers-color-scheme: dark)").matches)
+) {
+  document.documentElement.classList.add("dark");
+}
+
+// Toggle theme
+themeToggle.addEventListener("click", () => {
+  document.documentElement.classList.toggle("dark");
+
+  localStorage.setItem(
+    "theme",
+    document.documentElement.classList.contains("dark") ? "dark" : "light",
+  );
+});
