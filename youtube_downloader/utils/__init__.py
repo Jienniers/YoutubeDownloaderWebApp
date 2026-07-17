@@ -7,4 +7,4 @@ and utility classes used across the application.
 
 from .helpers import format_video_length
 
-__all__ = ['format_video_length']
+__all__ = ["format_video_length"]

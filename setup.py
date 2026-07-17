@@ -18,15 +18,11 @@ setup(
         "License :: OSI Approved :: MIT License",
         "Operating System :: OS Independent",
     ],
-    python_requires='>=3.7',
-    install_requires=[
-        "pytubefix",
-        "flask", 
-        "ffmpeg-python"
-    ],
+    python_requires=">=3.7",
+    install_requires=["pytubefix", "flask", "ffmpeg-python"],
     entry_points={
-        'console_scripts': [
-            'youtube-downloader=app:main',
+        "console_scripts": [
+            "youtube-downloader=app:main",
         ],
     },
 )
