@@ -8,7 +8,7 @@ A simple and user-friendly web application that allows you to download YouTube v
 
 > 🚫 **This project is intended for educational and personal use only.**
 >
-> Downloading videos or audio from **YouTube** using this tool may violate [YouTube’s Terms of Service](https://www.youtube.com/t/terms) and/or **copyright laws**.
+> Downloading videos or audio from **YouTube** using this tool may violate [YouTube's Terms of Service](https://www.youtube.com/t/terms) and/or **copyright laws**.
 >
 > The developer of this project does **not** support or encourage the downloading of copyrighted content from YouTube without permission from the content owner.
 >
@@ -30,7 +30,7 @@ This guide is written specifically for **Windows** systems. Compatibility with o
 
 ### Prerequisites (Manual Setup)
 
-* Python (Install from [python.org](https://www.python.org/downloads/))
+* Python 3.7+ (Install from [python.org](https://www.python.org/downloads/))
 * FFmpeg (Install from [ffmpeg.org](https://ffmpeg.org/download.html) and add it to your system's environment variables)
 
 ### 🧱 Create a Virtual Environment
@@ -55,8 +55,7 @@ venv\Scripts\Activate
 source venv/bin/activate
 ```
 
-You’ll know it’s active when your terminal prompt starts with `(venv)`.
-
+You'll know it's active when your terminal prompt starts with `(venv)`.
 
 ### 📦 Install Dependencies
 
@@ -112,6 +111,37 @@ http://localhost:5000/
 
 ---
 
+## Project Structure
+
+```
+youtube-downloader/
+├── app.py                 # Main application entry point  
+├── setup.py               # Package setup
+├── pyproject.toml         # Modern Python project configuration
+├── Dockerfile             # Docker container configuration
+├── README.md              # This file
+├── requirements.txt       # Dependencies
+├── youtube_downloader/    # Main package
+│   ├── __init__.py        # Package initialization
+│   ├── app.py             # Flask application factory
+│   ├── main.py            # Main routes and handlers  
+│   ├── services/
+│   │   ├── __init__.py    # Services package
+│   │   └── youtube_service.py  # YouTube download logic
+│   ├── models/
+│   │   ├── __init__.py    # Models package
+│   │   └── video_info.py  # Video data model
+│   ├── utils/
+│   │   ├── __init__.py    # Utilities package
+│   │   ├── helpers.py     # Utility functions  
+│   │   └── exceptions.py  # Custom exceptions
+├── templates/             # HTML templates
+│   └── index.html         # Main page template
+└── static/
+    └── js/
+        └── app.js         # Frontend JavaScript
+```
+
 ## Notes
 
 * JavaScript must be enabled in your browser to receive download confirmation alerts.
@@ -122,7 +152,12 @@ http://localhost:5000/
 
 **Frontend:** HTML, Tailwind CSS, JS
 
-**Backend:** Flask
+**Backend:** Flask, Python 3.7+
+
+**Libraries:**
+- pytubefix - YouTube stream extraction
+- ffmpeg-python - Video processing with FFmpeg  
+- flask - Web framework
 
 ---
 
@@ -187,7 +222,6 @@ To contribute, follow the steps below:
 
 ---
 
-
 ## 🛠️ Support & Issues
 
 If you encounter any bugs, have questions, or would like to suggest new features:
@@ -215,6 +249,5 @@ This project is licensed under the [MIT License](LICENSE).
 ## 👤 Author
 
 * Developed by [@Jienniers](https://github.com/Jienniers)
-
 
 Feel free to ⭐ the repository if you find it useful!
