@@ -16,7 +16,6 @@ from pytubefix.cli import on_progress
 import ffmpeg
 
 from ..models.video_info import VideoInfo
-from ..utils.exceptions import DownloadError, ConversionError
 
 logger = logging.getLogger(__name__)
 
