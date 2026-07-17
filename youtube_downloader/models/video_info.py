@@ -7,6 +7,7 @@ the metadata of a YouTube video.
 
 from dataclasses import dataclass
 
+
 @dataclass
 class VideoInfo:
     """Data class representing YouTube video information."""

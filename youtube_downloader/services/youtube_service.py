@@ -7,13 +7,14 @@ and converting audio formats.
 """
 
 import io
+import logging
 import os
 import tempfile
-import logging
-from typing import Optional, List, BinaryIO
+from typing import BinaryIO, List, Optional
+
+import ffmpeg
 from pytubefix import YouTube
 from pytubefix.cli import on_progress
-import ffmpeg
 
 from ..models.video_info import VideoInfo
 

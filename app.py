@@ -6,6 +6,7 @@ This script initializes and runs the Flask web application.
 """
 
 import logging
+
 from youtube_downloader import create_app
 
 # Setup basic logging
