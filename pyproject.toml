@@ -1,0 +1,29 @@
+[build-system]
+requires = ["setuptools>=45", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "youtube-downloader"
+version = "1.0.0"
+description = "A web application for downloading YouTube videos and audio"
+readme = "README.md"
+authors = [{name = "Jienniers"}]
+license = {text = "MIT"}
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+]
+requires-python = ">=3.7"
+dependencies = [
+    "pytubefix",
+    "flask",
+    "ffmpeg-python"
+]
+
+[project.urls]
+Homepage = "https://github.com/Jienniers/YoutubeDownloaderWebApp"
+Repository = "https://github.com/Jienniers/YoutubeDownloaderWebApp"
+
+[project.scripts]
+youtube-downloader = "app:main"
