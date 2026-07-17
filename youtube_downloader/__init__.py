@@ -6,13 +6,20 @@ This package contains all components needed to run the YouTube video and audio d
 
 from flask import Flask
 import secrets
+import os
+
 
 def create_app():
     """Create and configure the Flask application."""
-    app = Flask(__name__, template_folder="../templates")
+    app = Flask(
+        __name__,
+        template_folder=os.path.join("..", "templates"),
+        static_folder=os.path.join("..", "static"),
+    )
     app.secret_key = secrets.token_hex(16)
-    
+
     from .main import main_bp
+
     app.register_blueprint(main_bp)
-    
+
     return app
