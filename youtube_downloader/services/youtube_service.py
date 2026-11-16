@@ -10,6 +10,7 @@ import io
 import logging
 import os
 import tempfile
+import time
 from typing import BinaryIO, Callable, List, Optional
 
 import ffmpeg
@@ -83,7 +84,9 @@ class YouTubeService:
             return []
 
     def download_video_to_buffer(
-        self, url: str, selected_resolution: str, progress_callback: Optional[Callable[[float], None]] = None
+        self, url: str, selected_resolution: str,
+        progress_callback: Optional[Callable[[float], None]] = None,
+        cancel_check: Optional[Callable[[], bool]] = None,
     ) -> Optional[BinaryIO]:
         """
         Download a YouTube video in the specified resolution and merge with audio.
@@ -95,6 +98,7 @@ class YouTubeService:
         Returns:
             BinaryIO: Buffer containing the merged video or None if failed
         """
+        video_temp_path = audio_temp_path = output_temp_path = None
         try:
             logger.info(
                 f"Starting video download for {url} at resolution {selected_resolution}"
@@ -103,6 +107,8 @@ class YouTubeService:
             stream_progress = {}
 
             def report_progress(stream, chunk, bytes_remaining):
+                if cancel_check and cancel_check():
+                    raise RuntimeError("Video download cancelled")
                 total = stream.filesize or stream.filesize_approx or 0
                 if total and progress_callback:
                     stream_progress[id(stream)] = min(1, max(0, (total - bytes_remaining) / total))
@@ -123,6 +129,9 @@ class YouTubeService:
                 logger.error("Video or audio streams not found")
                 return None
 
+            if cancel_check and cancel_check():
+                return None
+
             # Step 1: Save both streams to temp files
             with tempfile.NamedTemporaryFile(suffix=".mp4", delete=False) as video_temp:
                 video_temp_path = video_temp.name
@@ -140,12 +149,23 @@ class YouTubeService:
             ) as output_temp:
                 output_temp_path = output_temp.name
 
+            if cancel_check and cancel_check():
+                return None
+
             video_input = ffmpeg.input(video_temp_path)
             audio_input = ffmpeg.input(audio_temp_path)
 
-            ffmpeg.output(
+            ffmpeg_process = ffmpeg.output(
                 video_input, audio_input, output_temp_path, c="copy", loglevel="quiet"
-            ).run(overwrite_output=True)
+            ).overwrite_output().run_async()
+            while ffmpeg_process.poll() is None:
+                if cancel_check and cancel_check():
+                    ffmpeg_process.terminate()
+                    ffmpeg_process.wait()
+                    return None
+                time.sleep(0.1)
+            if ffmpeg_process.returncode:
+                raise ffmpeg.Error("ffmpeg", b"", b"FFmpeg exited unsuccessfully")
 
             # Step 3: Load merged file into buffer
             video_buffer = io.BytesIO()
@@ -156,14 +176,6 @@ class YouTubeService:
             logger.info("Video download and merge completed successfully")
             if progress_callback:
                 progress_callback(100)
-
-            # Step 4: Clean up temporary files
-            try:
-                os.remove(video_temp_path)
-                os.remove(audio_temp_path)
-                os.remove(output_temp_path)
-            except Exception as cleanup_error:
-                logger.warning(f"Error cleaning up temp files: {cleanup_error}")
 
             return video_buffer
 
@@ -178,6 +190,13 @@ class YouTubeService:
         except Exception as e:
             logger.error(f"General failure during video download for URL {url}: {e}")
             return None
+        finally:
+            for temp_path in (video_temp_path, audio_temp_path, output_temp_path):
+                if temp_path and os.path.exists(temp_path):
+                    try:
+                        os.remove(temp_path)
+                    except OSError as cleanup_error:
+                        logger.warning("Error cleaning up temp file %s: %s", temp_path, cleanup_error)
 
     def download_audio_to_buffer(self, url: str) -> Optional[BinaryIO]:
         """

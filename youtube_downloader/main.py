@@ -27,25 +27,47 @@ def _run_video_job(job_id, url, resolution):
         job = _jobs[job_id]
         job["status"] = "processing"
     try:
+        if _job_cancelled(job_id):
+            with _jobs_lock:
+                _jobs[job_id]["status"] = "cancelled"
+            return
         service = YouTubeService()
         info = service.get_video_info(url)
         if not info:
             raise RuntimeError("Could not read video information")
+        if _job_cancelled(job_id):
+            with _jobs_lock:
+                _jobs[job_id]["status"] = "cancelled"
+            return
         with _jobs_lock:
             _jobs[job_id]["title"] = info.title
         buffer = service.download_video_to_buffer(
             url, resolution,
             progress_callback=lambda percent: _update_progress(job_id, percent),
+            cancel_check=lambda: _job_cancelled(job_id),
         )
         if not buffer:
+            if _job_cancelled(job_id):
+                with _jobs_lock:
+                    _jobs[job_id].update(status="cancelled", progress=0)
+                return
             raise RuntimeError("Video processing failed")
         with _jobs_lock:
+            if _jobs[job_id]["cancel_event"].is_set():
+                _jobs[job_id].update(status="cancelled", progress=0)
+                return
             _jobs[job_id].update(status="complete", progress=100, buffer=buffer,
                                  filename=f"{info.title}.mp4")
     except Exception as error:
         logger.exception("Video job %s failed", job_id)
         with _jobs_lock:
             _jobs[job_id].update(status="error", error=str(error))
+
+
+def _job_cancelled(job_id):
+    with _jobs_lock:
+        job = _jobs.get(job_id)
+        return not job or job["cancel_event"].is_set()
 
 
 def _update_progress(job_id, percent):
@@ -62,9 +84,23 @@ def start_video_download():
         return jsonify(error="A video URL and resolution are required."), 400
     job_id = uuid.uuid4().hex
     with _jobs_lock:
-        _jobs[job_id] = {"status": "queued", "progress": 0, "buffer": None}
+        _jobs[job_id] = {"status": "queued", "progress": 0, "buffer": None,
+                         "cancel_event": threading.Event()}
     threading.Thread(target=_run_video_job, args=(job_id, url, resolution), daemon=True).start()
     return jsonify(jobId=job_id), 202
+
+
+@main_bp.route("/api/video-download/<job_id>/cancel", methods=["POST"])
+def cancel_video_download(job_id):
+    with _jobs_lock:
+        job = _jobs.get(job_id)
+        if not job:
+            return jsonify(error="Download job not found."), 404
+        if job["status"] in {"complete", "error", "cancelled"}:
+            return jsonify(status=job["status"]), 409
+        job["cancel_event"].set()
+        job["status"] = "cancelling"
+    return jsonify(status="cancelling"), 202
 
 
 @main_bp.route("/api/video-info", methods=["POST"])

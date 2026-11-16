@@ -10,6 +10,7 @@ const progressNote = document.getElementById("progress-note");
 let queue = [];
 let processing = false;
 let currentUrl = document.getElementById("main-form")?.dataset.currentUrl || "";
+let activeJobId = null;
 
 document.getElementById("in-between")?.addEventListener("click", async event => {
   event.preventDefault();
@@ -100,6 +101,8 @@ async function runQueue() {
       });
       if (!start.ok) throw new Error("Could not start video processing.");
       const { jobId } = await start.json();
+      activeJobId = jobId;
+      document.getElementById("cancel-download").disabled = false;
       let status;
       do {
         await new Promise(resolve => setTimeout(resolve, 650));
@@ -108,7 +111,19 @@ async function runQueue() {
         status = await response.json();
         setProgress(status.progress || 0, status.title || item.title);
         if (status.status === "error") throw new Error(status.error || "Video processing failed.");
-      } while (status.status !== "complete");
+      } while (!["complete", "cancelled"].includes(status.status));
+      if (status.status === "cancelled") {
+        activeJobId = null;
+        const cancelButton = document.getElementById("cancel-download");
+        cancelButton.disabled = false;
+        cancelButton.textContent = "Cancel download";
+        queue.shift();
+        renderQueue();
+        progressLabel.textContent = "Download cancelled";
+        progressNote.textContent = "The video was cancelled. Remaining videos will continue in order.";
+        await new Promise(resolve => setTimeout(resolve, 700));
+        continue;
+      }
       progressLabel.textContent = "Video ready";
       progressNote.textContent = "Starting your download…";
       const fileResponse = await fetch(`/api/video-download/${jobId}/file`);
@@ -122,6 +137,9 @@ async function runQueue() {
       link.remove();
       setTimeout(() => URL.revokeObjectURL(link.href), 1000);
       queue.shift();
+      activeJobId = null;
+      document.getElementById("cancel-download").disabled = false;
+      document.getElementById("cancel-download").textContent = "Cancel download";
       renderQueue();
       await new Promise(resolve => setTimeout(resolve, 700));
     }
@@ -136,8 +154,28 @@ async function runQueue() {
     }
   } finally {
     processing = false;
+    activeJobId = null;
+    const cancelButton = document.getElementById("cancel-download");
+    cancelButton.disabled = false;
+    cancelButton.textContent = "Cancel download";
   }
 }
+
+document.getElementById("cancel-download")?.addEventListener("click", async event => {
+  if (!activeJobId) return;
+  const button = event.currentTarget;
+  button.disabled = true;
+  button.textContent = "Cancelling…";
+  progressNote.textContent = "Stopping the current download…";
+  try {
+    const response = await fetch(`/api/video-download/${activeJobId}/cancel`, { method: "POST" });
+    if (!response.ok && response.status !== 409) throw new Error("Could not cancel this download.");
+  } catch (error) {
+    progressNote.textContent = error.message;
+    button.disabled = false;
+    button.textContent = "Cancel download";
+  }
+});
 
 videoDownloadButton?.addEventListener("click", event => {
   event.preventDefault();
