@@ -198,7 +198,11 @@ class YouTubeService:
                     except OSError as cleanup_error:
                         logger.warning("Error cleaning up temp file %s: %s", temp_path, cleanup_error)
 
-    def download_audio_to_buffer(self, url: str) -> Optional[BinaryIO]:
+    def download_audio_to_buffer(
+        self, url: str,
+        progress_callback: Optional[Callable[[float], None]] = None,
+        cancel_check: Optional[Callable[[], bool]] = None,
+    ) -> Optional[BinaryIO]:
         """
         Download audio from YouTube and convert to MP3.
 
@@ -208,10 +212,19 @@ class YouTubeService:
         Returns:
             BinaryIO: Buffer containing the MP3 audio or None if failed
         """
+        temp_input_path = temp_output_path = None
         try:
             logger.info(f"Starting audio download for {url}")
 
-            yt = YouTube(url, on_progress_callback=on_progress)
+            def report_progress(stream, chunk, bytes_remaining):
+                if cancel_check and cancel_check():
+                    raise RuntimeError("Audio download cancelled")
+                total = stream.filesize or stream.filesize_approx or 0
+                if total and progress_callback:
+                    percent = max(0, min(80, (total - bytes_remaining) * 80 / total))
+                    progress_callback(round(percent))
+
+            yt = YouTube(url, on_progress_callback=report_progress if progress_callback else on_progress)
 
             # Get audio stream
             audio_stream = (
@@ -223,6 +236,9 @@ class YouTubeService:
 
             if not audio_stream:
                 logger.error("Audio stream not found")
+                return None
+
+            if cancel_check and cancel_check():
                 return None
 
             # Step 1: Write audio stream to a temp .mp4 file
@@ -237,8 +253,13 @@ class YouTubeService:
             ) as temp_output:
                 temp_output_path = temp_output.name
 
+            if cancel_check and cancel_check():
+                return None
+            if progress_callback:
+                progress_callback(82)
+
             # Step 3: Convert to MP3 using ffmpeg-python
-            (
+            ffmpeg_process = (
                 ffmpeg.input(temp_input_path)
                 .output(
                     temp_output_path,
@@ -248,8 +269,19 @@ class YouTubeService:
                     ar="44100",
                     loglevel="quiet",
                 )
-                .run(overwrite_output=True)
+                .overwrite_output()
+                .run_async()
             )
+            while ffmpeg_process.poll() is None:
+                if cancel_check and cancel_check():
+                    ffmpeg_process.terminate()
+                    ffmpeg_process.wait()
+                    return None
+                time.sleep(0.1)
+            if ffmpeg_process.returncode:
+                raise ffmpeg.Error("ffmpeg", b"", b"FFmpeg exited unsuccessfully")
+            if cancel_check and cancel_check():
+                return None
 
             # Step 4: Load converted audio into memory buffer
             mp3_buffer = io.BytesIO()
@@ -258,16 +290,18 @@ class YouTubeService:
             mp3_buffer.seek(0)
 
             logger.info("Audio download and conversion completed successfully")
-
-            # Step 5: Cleanup temp files
-            try:
-                os.remove(temp_input_path)
-                os.remove(temp_output_path)
-            except Exception as cleanup_error:
-                logger.warning(f"Error cleaning up temp files: {cleanup_error}")
+            if progress_callback:
+                progress_callback(100)
 
             return mp3_buffer
 
         except Exception as e:
             logger.error(f"Audio conversion failed for URL {url}: {e}")
             return None
+        finally:
+            for temp_path in (temp_input_path, temp_output_path):
+                if temp_path and os.path.exists(temp_path):
+                    try:
+                        os.remove(temp_path)
+                    except OSError as cleanup_error:
+                        logger.warning("Error cleaning up temp file %s: %s", temp_path, cleanup_error)

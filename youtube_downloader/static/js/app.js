@@ -70,19 +70,19 @@ function renderQueue() {
     title.textContent = item.title || item.url;
     const detail = document.createElement("span");
     detail.className = "mt-1 block text-xs text-gray-500 dark:text-zinc-400";
-    detail.textContent = `${item.resolution} · Waiting in queue`;
+    detail.textContent = `${item.kind === "audio" ? "MP3 audio" : item.resolution} · Waiting in queue`;
     row.append(title, detail);
     row.addEventListener("click", () => { item.selected = !item.selected; renderQueue(); });
     queueItems.append(row);
   });
 }
 
-function setProgress(percent, title) {
+function setProgress(percent, title, kind = "video") {
   progressPanel.classList.remove("hidden");
   progressFill.style.width = `${percent}%`;
   progressFill.setAttribute("aria-valuenow", String(percent));
   progressValue.textContent = `${percent}%`;
-  progressLabel.textContent = title ? `Preparing ${title}` : "Preparing video…";
+  progressLabel.textContent = `${kind === "audio" ? "Preparing audio" : "Preparing video"}${title ? `: ${title}` : "…"}`;
 }
 
 async function runQueue() {
@@ -93,23 +93,24 @@ async function runQueue() {
       const item = queue[0];
       item.active = true;
       renderQueue();
-      setProgress(0, item.title);
-      progressNote.textContent = "Getting the video ready. Your download will begin when processing is complete.";
-      const start = await fetch("/api/video-download", {
+      setProgress(0, item.title, item.kind);
+      progressNote.textContent = `Getting the ${item.kind} ready. Your download will begin when processing is complete.`;
+      const endpoint = item.kind === "audio" ? "/api/audio-download" : "/api/video-download";
+      const start = await fetch(endpoint, {
         method: "POST", headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ url: item.url, resolution: item.resolution }),
       });
-      if (!start.ok) throw new Error("Could not start video processing.");
+      if (!start.ok) throw new Error(`Could not start ${item.kind} processing.`);
       const { jobId } = await start.json();
       activeJobId = jobId;
       document.getElementById("cancel-download").disabled = false;
       let status;
       do {
         await new Promise(resolve => setTimeout(resolve, 650));
-        const response = await fetch(`/api/video-download/${jobId}`);
-        if (!response.ok) throw new Error("Could not read processing status.");
+        const response = await fetch(`${endpoint}/${jobId}`);
+        if (!response.ok) throw new Error(`Could not read ${item.kind} processing status.`);
         status = await response.json();
-        setProgress(status.progress || 0, status.title || item.title);
+        setProgress(status.progress || 0, status.title || item.title, item.kind);
         if (status.status === "error") throw new Error(status.error || "Video processing failed.");
       } while (!["complete", "cancelled"].includes(status.status));
       if (status.status === "cancelled") {
@@ -119,19 +120,20 @@ async function runQueue() {
         cancelButton.textContent = "Cancel download";
         queue.shift();
         renderQueue();
-        progressLabel.textContent = "Download cancelled";
-        progressNote.textContent = "The video was cancelled. Remaining videos will continue in order.";
+        progressLabel.textContent = `${item.kind === "audio" ? "Audio" : "Video"} download cancelled`;
+        progressNote.textContent = "The active download was cancelled. Remaining queue items will continue in order.";
         await new Promise(resolve => setTimeout(resolve, 700));
         continue;
       }
-      progressLabel.textContent = "Video ready";
+      progressLabel.textContent = `${item.kind === "audio" ? "Audio" : "Video"} ready`;
       progressNote.textContent = "Starting your download…";
-      const fileResponse = await fetch(`/api/video-download/${jobId}/file`);
-      if (!fileResponse.ok) throw new Error("The processed video could not be downloaded.");
+      const fileResponse = await fetch(`${endpoint}/${jobId}/file`);
+      if (!fileResponse.ok) throw new Error(`The processed ${item.kind} could not be downloaded.`);
       const blob = await fileResponse.blob();
       const link = document.createElement("a");
       link.href = URL.createObjectURL(blob);
-      link.download = status.title ? `${status.title}.mp4` : "youtube-video.mp4";
+      const extension = item.kind === "audio" ? "mp3" : "mp4";
+      link.download = status.title ? `${status.title}.${extension}` : `youtube-${item.kind}.${extension}`;
       document.body.append(link);
       link.click();
       link.remove();
@@ -145,7 +147,7 @@ async function runQueue() {
     }
     progressPanel.classList.add("hidden");
   } catch (error) {
-    progressLabel.textContent = "Could not process this video";
+    progressLabel.textContent = `Could not process this ${queue[0]?.kind || "video"}`;
     progressNote.textContent = error.message;
     if (queue.length) {
       queue[0].active = false;
@@ -168,7 +170,8 @@ document.getElementById("cancel-download")?.addEventListener("click", async even
   button.textContent = "Cancelling…";
   progressNote.textContent = "Stopping the current download…";
   try {
-    const response = await fetch(`/api/video-download/${activeJobId}/cancel`, { method: "POST" });
+    const endpoint = queue[0]?.kind === "audio" ? "/api/audio-download" : "/api/video-download";
+    const response = await fetch(`${endpoint}/${activeJobId}/cancel`, { method: "POST" });
     if (!response.ok && response.status !== 409) throw new Error("Could not cancel this download.");
   } catch (error) {
     progressNote.textContent = error.message;
@@ -183,7 +186,7 @@ videoDownloadButton?.addEventListener("click", event => {
   const title = document.querySelector("h2")?.textContent.trim() || url;
   const resolution = document.getElementById("resolutions")?.value;
   if (!url || !resolution) return;
-  queue.push({ url, title, resolution, selected: false, active: false });
+  queue.push({ url, title, resolution, kind: "video", selected: false, active: false });
   renderQueue();
   if (!processing) runQueue();
 });
@@ -198,8 +201,13 @@ document.getElementById("clear-queue")?.addEventListener("click", () => {
   renderQueue();
 });
 
-document.getElementById("audio_download_btn")?.addEventListener("click", () => {
-  alert("Your audio download will begin shortly. Please keep this tab open while it is processing.");
+document.getElementById("audio_download_btn")?.addEventListener("click", event => {
+  event.preventDefault();
+  if (!currentUrl) return;
+  const title = document.querySelector("h2")?.textContent.trim() || currentUrl;
+  queue.push({ url: currentUrl, title, kind: "audio", selected: false, active: false });
+  renderQueue();
+  if (!processing) runQueue();
 });
 
 const themeToggle = document.getElementById("theme-toggle");

@@ -57,9 +57,50 @@ def _run_video_job(job_id, url, resolution):
                 _jobs[job_id].update(status="cancelled", progress=0)
                 return
             _jobs[job_id].update(status="complete", progress=100, buffer=buffer,
-                                 filename=f"{info.title}.mp4")
+                                 filename=f"{info.title}.mp4", mimetype="video/mp4")
     except Exception as error:
         logger.exception("Video job %s failed", job_id)
+        with _jobs_lock:
+            _jobs[job_id].update(status="error", error=str(error))
+
+
+def _run_audio_job(job_id, url):
+    with _jobs_lock:
+        _jobs[job_id]["status"] = "processing"
+    try:
+        if _job_cancelled(job_id):
+            with _jobs_lock:
+                _jobs[job_id]["status"] = "cancelled"
+            return
+        service = YouTubeService()
+        info = service.get_video_info(url)
+        if not info:
+            raise RuntimeError("Could not read video information")
+        if _job_cancelled(job_id):
+            with _jobs_lock:
+                _jobs[job_id]["status"] = "cancelled"
+            return
+        with _jobs_lock:
+            _jobs[job_id]["title"] = info.title
+        buffer = service.download_audio_to_buffer(
+            url,
+            progress_callback=lambda percent: _update_progress(job_id, percent),
+            cancel_check=lambda: _job_cancelled(job_id),
+        )
+        if not buffer:
+            if _job_cancelled(job_id):
+                with _jobs_lock:
+                    _jobs[job_id].update(status="cancelled", progress=0)
+                return
+            raise RuntimeError("Audio processing failed")
+        with _jobs_lock:
+            if _jobs[job_id]["cancel_event"].is_set():
+                _jobs[job_id].update(status="cancelled", progress=0)
+                return
+            _jobs[job_id].update(status="complete", progress=100, buffer=buffer,
+                                 filename=f"{info.title}.mp3", mimetype="audio/mpeg")
+    except Exception as error:
+        logger.exception("Audio job %s failed", job_id)
         with _jobs_lock:
             _jobs[job_id].update(status="error", error=str(error))
 
@@ -91,6 +132,7 @@ def start_video_download():
 
 
 @main_bp.route("/api/video-download/<job_id>/cancel", methods=["POST"])
+@main_bp.route("/api/audio-download/<job_id>/cancel", methods=["POST"])
 def cancel_video_download(job_id):
     with _jobs_lock:
         job = _jobs.get(job_id)
@@ -101,6 +143,20 @@ def cancel_video_download(job_id):
         job["cancel_event"].set()
         job["status"] = "cancelling"
     return jsonify(status="cancelling"), 202
+
+
+@main_bp.route("/api/audio-download", methods=["POST"])
+def start_audio_download():
+    payload = request.get_json(silent=True) or {}
+    url = payload.get("url")
+    if not url:
+        return jsonify(error="A video URL is required."), 400
+    job_id = uuid.uuid4().hex
+    with _jobs_lock:
+        _jobs[job_id] = {"status": "queued", "progress": 0, "buffer": None,
+                         "cancel_event": threading.Event()}
+    threading.Thread(target=_run_audio_job, args=(job_id, url), daemon=True).start()
+    return jsonify(jobId=job_id), 202
 
 
 @main_bp.route("/api/video-info", methods=["POST"])
@@ -120,6 +176,7 @@ def video_info():
 
 
 @main_bp.route("/api/video-download/<job_id>")
+@main_bp.route("/api/audio-download/<job_id>")
 def video_download_status(job_id):
     with _jobs_lock:
         job = _jobs.get(job_id)
@@ -130,13 +187,15 @@ def video_download_status(job_id):
 
 
 @main_bp.route("/api/video-download/<job_id>/file")
+@main_bp.route("/api/audio-download/<job_id>/file")
 def video_download_file(job_id):
     with _jobs_lock:
         job = _jobs.get(job_id)
         if not job or job["status"] != "complete":
             return jsonify(error="The video is not ready yet."), 409
         buffer, filename = job["buffer"], job["filename"]
-    response = send_file(buffer, as_attachment=True, download_name=filename, mimetype="video/mp4")
+        mimetype = job.get("mimetype", "video/mp4")
+    response = send_file(buffer, as_attachment=True, download_name=filename, mimetype=mimetype)
 
     def discard_job():
         with _jobs_lock:
