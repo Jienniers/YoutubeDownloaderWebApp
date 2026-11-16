@@ -10,7 +10,7 @@ import io
 import logging
 import os
 import tempfile
-from typing import BinaryIO, List, Optional
+from typing import BinaryIO, Callable, List, Optional
 
 import ffmpeg
 from pytubefix import YouTube
@@ -83,7 +83,7 @@ class YouTubeService:
             return []
 
     def download_video_to_buffer(
-        self, url: str, selected_resolution: str
+        self, url: str, selected_resolution: str, progress_callback: Optional[Callable[[float], None]] = None
     ) -> Optional[BinaryIO]:
         """
         Download a YouTube video in the specified resolution and merge with audio.
@@ -100,7 +100,15 @@ class YouTubeService:
                 f"Starting video download for {url} at resolution {selected_resolution}"
             )
 
-            yt = YouTube(url, on_progress_callback=on_progress)
+            stream_progress = {}
+
+            def report_progress(stream, chunk, bytes_remaining):
+                total = stream.filesize or stream.filesize_approx or 0
+                if total and progress_callback:
+                    stream_progress[id(stream)] = min(1, max(0, (total - bytes_remaining) / total))
+                    progress_callback(round(sum(stream_progress.values()) * 99 / 2))
+
+            yt = YouTube(url, on_progress_callback=report_progress if progress_callback else on_progress)
 
             # Get video and audio streams
             video_stream = yt.streams.filter(
@@ -146,6 +154,8 @@ class YouTubeService:
             video_buffer.seek(0)
 
             logger.info("Video download and merge completed successfully")
+            if progress_callback:
+                progress_callback(100)
 
             # Step 4: Clean up temporary files
             try:
