@@ -18,7 +18,7 @@ from .utils.helpers import format_video_length
 logger = logging.getLogger(__name__)
 
 main_bp = Blueprint("main", __name__)
-_jobs = {}
+_jobs: dict[str, str] = {}
 _jobs_lock = threading.Lock()
 
 
