@@ -4,7 +4,6 @@ YouTube Downloader Web Application Package
 This package contains all components needed to run the YouTube video and audio downloader web application.
 """
 
-import os
 import secrets
 
 from flask import Flask
