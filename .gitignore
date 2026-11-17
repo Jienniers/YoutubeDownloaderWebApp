@@ -3,3 +3,4 @@ Audios/*
 Videos/*
 __pycache__
 venv/
+.ruff_cache
