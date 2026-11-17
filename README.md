@@ -106,6 +106,39 @@ http://localhost:5000/
 
 ---
 
+## Code Formatting, Linting, and Type Checks
+
+Run these commands from the repository root with your Python virtual environment active.
+
+### Install the tools
+
+~~~bash
+python -m pip install black flake8 mypy
+~~~
+
+### Format your code and run the CI checks
+
+Apply Black formatting before committing:
+
+~~~bash
+black .
+~~~
+
+The GitHub workflow checks formatting with:
+
+~~~bash
+black --check .
+~~~
+
+The lint and type-check workflows run:
+
+~~~bash
+flake8 .
+mypy .
+~~~
+
+Flake8 and mypy report issues but do not automatically fix them. Fix their findings, then rerun the checks.
+
 ## 🛠️ Tech Stack
 
 **Frontend:** HTML, Tailwind CSS, JS
@@ -154,6 +187,16 @@ To contribute, follow the steps below:
    - Comment your code where necessary.
    - Update or add documentation if needed.
 
+   Before committing, format your changes and run the same checks as GitHub Actions from the repository root:
+
+   ~~~bash
+   black .
+   black --check .
+   flake8 .
+   mypy .
+   ~~~
+
+   Black applies formatting; Flake8 and mypy findings need to be fixed manually. See the Code Formatting, Linting, and Type Checks section above for details.
 4. **Stage and Commit Your Changes**
 
    ```bash
