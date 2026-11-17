@@ -30,8 +30,8 @@ This guide is written specifically for **Windows** systems. Compatibility with o
 
 ### Prerequisites (Manual Setup)
 
-* Python 3.7+ (Install from [python.org](https://www.python.org/downloads/))
-* FFmpeg (Install from [ffmpeg.org](https://ffmpeg.org/download.html) and add it to your system's environment variables)
+- Python 3.7+ (Install from [python.org](https://www.python.org/downloads/))
+- FFmpeg (Install from [ffmpeg.org](https://ffmpeg.org/download.html) and add it to your system's environment variables)
 
 ### 🧱 Create a Virtual Environment
 
@@ -102,49 +102,7 @@ Then open your browser and navigate to:
 http://localhost:5000/
 ```
 
-#### 📊 Docker Benefits
-
-* Isolated environment, no need to install Python or FFmpeg manually
-* Consistent builds across different machines
-
 > Make sure Docker is installed and running on your machine. You can download it from [docker.com](https://www.docker.com/).
-
----
-
-## Project Structure
-
-```
-youtube-downloader/
-├── app.py                 # Main application entry point  
-├── setup.py               # Package setup
-├── pyproject.toml         # Modern Python project configuration
-├── Dockerfile             # Docker container configuration
-├── README.md              # This file
-├── requirements.txt       # Dependencies
-├── youtube_downloader/    # Main package
-│   ├── __init__.py        # Package initialization
-│   ├── app.py             # Flask application factory
-│   ├── main.py            # Main routes and handlers  
-│   ├── services/
-│   │   ├── __init__.py    # Services package
-│   │   └── youtube_service.py  # YouTube download logic
-│   ├── models/
-│   │   ├── __init__.py    # Models package
-│   │   └── video_info.py  # Video data model
-│   ├── utils/
-│   │   ├── __init__.py    # Utilities package
-│   │   ├── helpers.py     # Utility functions  
-│   │   └── exceptions.py  # Custom exceptions
-├── templates/             # HTML templates
-│   └── index.html         # Main page template
-└── static/
-    └── js/
-        └── app.js         # Frontend JavaScript
-```
-
-## Notes
-
-* JavaScript must be enabled in your browser to receive download confirmation alerts.
 
 ---
 
@@ -155,21 +113,17 @@ youtube-downloader/
 **Backend:** Flask, Python 3.7+
 
 **Libraries:**
+
 - pytubefix - YouTube stream extraction
-- ffmpeg-python - Video processing with FFmpeg  
+- ffmpeg-python - Video processing with FFmpeg
 - flask - Web framework
 
 ---
 
 ## 📸 Screenshots
 
-#### 🖥️ Desktop Screenshots
-
 ![App Screenshot](https://github.com/Jienniers/YoutubeDownloaderWebApp/blob/main/screenshots/Screenshot1.png)
-
-#### 📱 Mobile Screenshots
-
-<img src="https://github.com/Jienniers/YoutubeDownloaderWebApp/blob/main/screenshots/mobileScreenshot.png?raw=true" width="300" />
+![App Screenshot](https://github.com/Jienniers/YoutubeDownloaderWebApp/blob/main/screenshots/Screenshot2.png)
 
 ---
 
@@ -196,10 +150,9 @@ To contribute, follow the steps below:
    ```
 
 3. **Make Your Changes**
-
-   * Ensure your code follows the existing code style.
-   * Comment your code where necessary.
-   * Update or add documentation if needed.
+   - Ensure your code follows the existing code style.
+   - Comment your code where necessary.
+   - Update or add documentation if needed.
 
 4. **Stage and Commit Your Changes**
 
@@ -215,10 +168,9 @@ To contribute, follow the steps below:
    ```
 
 6. **Open a Pull Request**
-
-   * Go to the original repository on GitHub
-   * Click on "Compare & pull request"
-   * Provide a clear title and description for your pull request
+   - Go to the original repository on GitHub
+   - Click on "Compare & pull request"
+   - Provide a clear title and description for your pull request
 
 ---
 
@@ -226,13 +178,12 @@ To contribute, follow the steps below:
 
 If you encounter any bugs, have questions, or would like to suggest new features:
 
-* 👉 Head over to the [Issues](../../issues) tab in this repository
-* 🐛 Click on **"New Issue"** to report a bug or share your suggestion
-* 📋 Please include as much detail as possible:
-
-  * Steps to reproduce the issue (if it's a bug)
-  * Expected vs actual behavior
-  * Screenshots (if helpful)
+- 👉 Head over to the [Issues](../../issues) tab in this repository
+- 🐛 Click on **"New Issue"** to report a bug or share your suggestion
+- 📋 Please include as much detail as possible:
+  - Steps to reproduce the issue (if it's a bug)
+  - Expected vs actual behavior
+  - Screenshots (if helpful)
 
 Your feedback helps improve this project and is always appreciated!
 
@@ -248,6 +199,6 @@ This project is licensed under the [MIT License](LICENSE).
 
 ## 👤 Author
 
-* Developed by [@Jienniers](https://github.com/Jienniers)
+- Developed by [@Jienniers](https://github.com/Jienniers)
 
 Feel free to ⭐ the repository if you find it useful!

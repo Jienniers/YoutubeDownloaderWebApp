@@ -10,7 +10,8 @@ import io
 import logging
 import os
 import tempfile
-from typing import BinaryIO, List, Optional
+import time
+from typing import BinaryIO, Callable, List, Optional
 
 import ffmpeg
 from pytubefix import YouTube
@@ -83,7 +84,11 @@ class YouTubeService:
             return []
 
     def download_video_to_buffer(
-        self, url: str, selected_resolution: str
+        self,
+        url: str,
+        selected_resolution: str,
+        progress_callback: Optional[Callable[[float], None]] = None,
+        cancel_check: Optional[Callable[[], bool]] = None,
     ) -> Optional[BinaryIO]:
         """
         Download a YouTube video in the specified resolution and merge with audio.
@@ -95,12 +100,30 @@ class YouTubeService:
         Returns:
             BinaryIO: Buffer containing the merged video or None if failed
         """
+        video_temp_path = audio_temp_path = output_temp_path = None
         try:
             logger.info(
                 f"Starting video download for {url} at resolution {selected_resolution}"
             )
 
-            yt = YouTube(url, on_progress_callback=on_progress)
+            stream_progress = {}
+
+            def report_progress(stream, chunk, bytes_remaining):
+                if cancel_check and cancel_check():
+                    raise RuntimeError("Video download cancelled")
+                total = stream.filesize or stream.filesize_approx or 0
+                if total and progress_callback:
+                    stream_progress[id(stream)] = min(
+                        1, max(0, (total - bytes_remaining) / total)
+                    )
+                    progress_callback(round(sum(stream_progress.values()) * 99 / 2))
+
+            yt = YouTube(
+                url,
+                on_progress_callback=(
+                    report_progress if progress_callback else on_progress
+                ),
+            )
 
             # Get video and audio streams
             video_stream = yt.streams.filter(
@@ -113,6 +136,9 @@ class YouTubeService:
 
             if not video_stream or not audio_stream:
                 logger.error("Video or audio streams not found")
+                return None
+
+            if cancel_check and cancel_check():
                 return None
 
             # Step 1: Save both streams to temp files
@@ -132,12 +158,31 @@ class YouTubeService:
             ) as output_temp:
                 output_temp_path = output_temp.name
 
+            if cancel_check and cancel_check():
+                return None
+
             video_input = ffmpeg.input(video_temp_path)
             audio_input = ffmpeg.input(audio_temp_path)
 
-            ffmpeg.output(
-                video_input, audio_input, output_temp_path, c="copy", loglevel="quiet"
-            ).run(overwrite_output=True)
+            ffmpeg_process = (
+                ffmpeg.output(
+                    video_input,
+                    audio_input,
+                    output_temp_path,
+                    c="copy",
+                    loglevel="quiet",
+                )
+                .overwrite_output()
+                .run_async()
+            )
+            while ffmpeg_process.poll() is None:
+                if cancel_check and cancel_check():
+                    ffmpeg_process.terminate()
+                    ffmpeg_process.wait()
+                    return None
+                time.sleep(0.1)
+            if ffmpeg_process.returncode:
+                raise ffmpeg.Error("ffmpeg", b"", b"FFmpeg exited unsuccessfully")
 
             # Step 3: Load merged file into buffer
             video_buffer = io.BytesIO()
@@ -146,14 +191,8 @@ class YouTubeService:
             video_buffer.seek(0)
 
             logger.info("Video download and merge completed successfully")
-
-            # Step 4: Clean up temporary files
-            try:
-                os.remove(video_temp_path)
-                os.remove(audio_temp_path)
-                os.remove(output_temp_path)
-            except Exception as cleanup_error:
-                logger.warning(f"Error cleaning up temp files: {cleanup_error}")
+            if progress_callback:
+                progress_callback(100)
 
             return video_buffer
 
@@ -168,8 +207,24 @@ class YouTubeService:
         except Exception as e:
             logger.error(f"General failure during video download for URL {url}: {e}")
             return None
+        finally:
+            for temp_path in (video_temp_path, audio_temp_path, output_temp_path):
+                if temp_path and os.path.exists(temp_path):
+                    try:
+                        os.remove(temp_path)
+                    except OSError as cleanup_error:
+                        logger.warning(
+                            "Error cleaning up temp file %s: %s",
+                            temp_path,
+                            cleanup_error,
+                        )
 
-    def download_audio_to_buffer(self, url: str) -> Optional[BinaryIO]:
+    def download_audio_to_buffer(
+        self,
+        url: str,
+        progress_callback: Optional[Callable[[float], None]] = None,
+        cancel_check: Optional[Callable[[], bool]] = None,
+    ) -> Optional[BinaryIO]:
         """
         Download audio from YouTube and convert to MP3.
 
@@ -179,10 +234,24 @@ class YouTubeService:
         Returns:
             BinaryIO: Buffer containing the MP3 audio or None if failed
         """
+        temp_input_path = temp_output_path = None
         try:
             logger.info(f"Starting audio download for {url}")
 
-            yt = YouTube(url, on_progress_callback=on_progress)
+            def report_progress(stream, chunk, bytes_remaining):
+                if cancel_check and cancel_check():
+                    raise RuntimeError("Audio download cancelled")
+                total = stream.filesize or stream.filesize_approx or 0
+                if total and progress_callback:
+                    percent = max(0, min(80, (total - bytes_remaining) * 80 / total))
+                    progress_callback(round(percent))
+
+            yt = YouTube(
+                url,
+                on_progress_callback=(
+                    report_progress if progress_callback else on_progress
+                ),
+            )
 
             # Get audio stream
             audio_stream = (
@@ -194,6 +263,9 @@ class YouTubeService:
 
             if not audio_stream:
                 logger.error("Audio stream not found")
+                return None
+
+            if cancel_check and cancel_check():
                 return None
 
             # Step 1: Write audio stream to a temp .mp4 file
@@ -208,8 +280,13 @@ class YouTubeService:
             ) as temp_output:
                 temp_output_path = temp_output.name
 
+            if cancel_check and cancel_check():
+                return None
+            if progress_callback:
+                progress_callback(82)
+
             # Step 3: Convert to MP3 using ffmpeg-python
-            (
+            ffmpeg_process = (
                 ffmpeg.input(temp_input_path)
                 .output(
                     temp_output_path,
@@ -219,8 +296,19 @@ class YouTubeService:
                     ar="44100",
                     loglevel="quiet",
                 )
-                .run(overwrite_output=True)
+                .overwrite_output()
+                .run_async()
             )
+            while ffmpeg_process.poll() is None:
+                if cancel_check and cancel_check():
+                    ffmpeg_process.terminate()
+                    ffmpeg_process.wait()
+                    return None
+                time.sleep(0.1)
+            if ffmpeg_process.returncode:
+                raise ffmpeg.Error("ffmpeg", b"", b"FFmpeg exited unsuccessfully")
+            if cancel_check and cancel_check():
+                return None
 
             # Step 4: Load converted audio into memory buffer
             mp3_buffer = io.BytesIO()
@@ -229,16 +317,22 @@ class YouTubeService:
             mp3_buffer.seek(0)
 
             logger.info("Audio download and conversion completed successfully")
-
-            # Step 5: Cleanup temp files
-            try:
-                os.remove(temp_input_path)
-                os.remove(temp_output_path)
-            except Exception as cleanup_error:
-                logger.warning(f"Error cleaning up temp files: {cleanup_error}")
+            if progress_callback:
+                progress_callback(100)
 
             return mp3_buffer
 
         except Exception as e:
             logger.error(f"Audio conversion failed for URL {url}: {e}")
             return None
+        finally:
+            for temp_path in (temp_input_path, temp_output_path):
+                if temp_path and os.path.exists(temp_path):
+                    try:
+                        os.remove(temp_path)
+                    except OSError as cleanup_error:
+                        logger.warning(
+                            "Error cleaning up temp file %s: %s",
+                            temp_path,
+                            cleanup_error,
+                        )
