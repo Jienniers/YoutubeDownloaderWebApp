@@ -84,7 +84,9 @@ class YouTubeService:
             return []
 
     def download_video_to_buffer(
-        self, url: str, selected_resolution: str,
+        self,
+        url: str,
+        selected_resolution: str,
         progress_callback: Optional[Callable[[float], None]] = None,
         cancel_check: Optional[Callable[[], bool]] = None,
     ) -> Optional[BinaryIO]:
@@ -111,10 +113,17 @@ class YouTubeService:
                     raise RuntimeError("Video download cancelled")
                 total = stream.filesize or stream.filesize_approx or 0
                 if total and progress_callback:
-                    stream_progress[id(stream)] = min(1, max(0, (total - bytes_remaining) / total))
+                    stream_progress[id(stream)] = min(
+                        1, max(0, (total - bytes_remaining) / total)
+                    )
                     progress_callback(round(sum(stream_progress.values()) * 99 / 2))
 
-            yt = YouTube(url, on_progress_callback=report_progress if progress_callback else on_progress)
+            yt = YouTube(
+                url,
+                on_progress_callback=(
+                    report_progress if progress_callback else on_progress
+                ),
+            )
 
             # Get video and audio streams
             video_stream = yt.streams.filter(
@@ -155,9 +164,17 @@ class YouTubeService:
             video_input = ffmpeg.input(video_temp_path)
             audio_input = ffmpeg.input(audio_temp_path)
 
-            ffmpeg_process = ffmpeg.output(
-                video_input, audio_input, output_temp_path, c="copy", loglevel="quiet"
-            ).overwrite_output().run_async()
+            ffmpeg_process = (
+                ffmpeg.output(
+                    video_input,
+                    audio_input,
+                    output_temp_path,
+                    c="copy",
+                    loglevel="quiet",
+                )
+                .overwrite_output()
+                .run_async()
+            )
             while ffmpeg_process.poll() is None:
                 if cancel_check and cancel_check():
                     ffmpeg_process.terminate()
@@ -196,10 +213,15 @@ class YouTubeService:
                     try:
                         os.remove(temp_path)
                     except OSError as cleanup_error:
-                        logger.warning("Error cleaning up temp file %s: %s", temp_path, cleanup_error)
+                        logger.warning(
+                            "Error cleaning up temp file %s: %s",
+                            temp_path,
+                            cleanup_error,
+                        )
 
     def download_audio_to_buffer(
-        self, url: str,
+        self,
+        url: str,
         progress_callback: Optional[Callable[[float], None]] = None,
         cancel_check: Optional[Callable[[], bool]] = None,
     ) -> Optional[BinaryIO]:
@@ -224,7 +246,12 @@ class YouTubeService:
                     percent = max(0, min(80, (total - bytes_remaining) * 80 / total))
                     progress_callback(round(percent))
 
-            yt = YouTube(url, on_progress_callback=report_progress if progress_callback else on_progress)
+            yt = YouTube(
+                url,
+                on_progress_callback=(
+                    report_progress if progress_callback else on_progress
+                ),
+            )
 
             # Get audio stream
             audio_stream = (
@@ -304,4 +331,8 @@ class YouTubeService:
                     try:
                         os.remove(temp_path)
                     except OSError as cleanup_error:
-                        logger.warning("Error cleaning up temp file %s: %s", temp_path, cleanup_error)
+                        logger.warning(
+                            "Error cleaning up temp file %s: %s",
+                            temp_path,
+                            cleanup_error,
+                        )
